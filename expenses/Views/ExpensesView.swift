@@ -10,14 +10,20 @@ import SwiftData
 
 struct ExpensesView: View {
     @Environment(\.modelContext) var modelContext
-    @Query(sort: \Expense.date, order: .reverse) private var expences: [Expense]
+    @Query(sort: \Expense.date, order: .reverse) 
+    private var expences: [Expense]
     
     var body: some View {
         List {
             ForEach(expences) { expense in
                 NavigationLink(value: expense) {
-                    Text("Expense at \(expense.date, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                } 
+                    VStack(alignment: .leading) {
+                        Text("\(expense.type.description.capitalized) amount: \(getTotalInCurrentCurrency( expense))")
+                            .font(.headline)
+                        Text("\(expense.date.formatted(date: .numeric, time: .standard))")
+                            .font(.caption)
+                    }
+                }
             }.onDelete(perform: deleteExpense)
         }
     }
@@ -28,6 +34,10 @@ struct ExpensesView: View {
                 modelContext.delete(expences[index])
             }
         }
+    }
+    
+    func getTotalInCurrentCurrency(_ expense: Expense) -> String {
+        return String(expense.total.formatted(.currency(code: expense.currency)))
     }
 }
 
