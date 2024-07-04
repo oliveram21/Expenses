@@ -10,27 +10,56 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @State private var path = NavigationPath()
     @State var showAddExpenceView = false
     
     var body: some View {
-        NavigationStack(path: $path) {
+        NavigationStack {
             ExpensesView()
                 .navigationTitle("Expenses")
                 .navigationDestination(for: Expense.self) { expense in
-                    ExpenseView(expense: expense, navigationPath: $path)
+                    ExpenseView(expense: expense)
                 }
                 .toolbar {
                     ToolbarItem {
                         Button("Add", action: { showAddExpenceView.toggle()})
-                        .fullScreenCover(isPresented: $showAddExpenceView,
-                                     content: { AddExpenseView(isPresented: $showAddExpenceView)})
-                }
+                            .sheet(isPresented: $showAddExpenceView,
+                                   content: {
+                                AddExpenseWrapperView(showAddExpenceView: $showAddExpenceView)
+                            })
+                        
+                    }
             }
         }
     }
+    
 }
 
+struct AddExpenseWrapperView: View {
+    @Environment(\.modelContext) var modelContext
+    @Binding var showAddExpenceView: Bool
+    
+    var body: some View {
+        NavigationStack {
+            let newExpense = Expense(date: Date(), total: 0, currency: "RON", photoData: nil, type: .invoice)
+            ExpenseView(expense: newExpense)
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) {
+                        Button("Cancel") {showAddExpenceView.toggle()}
+                    }
+                    
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Done") {
+                            addExpense(expense: newExpense)
+                            showAddExpenceView.toggle()
+                        }
+                    }
+                }
+        }
+    }
+    private func addExpense(expense: Expense) {
+        modelContext.insert(expense)
+    }
+}
 #Preview {
     ContentView()
         .modelContainer(for: Expense.self, inMemory: true)

@@ -10,8 +10,7 @@ import SwiftData
 
 struct ExpensesView: View {
     @Environment(\.modelContext) var modelContext
-    @Query(sort: \Expense.date, order: .reverse) 
-    private var expences: [Expense]
+    @Query(sort: \Expense.date, order: .reverse) private var expences: [Expense]
     
     var body: some View {
         List {
@@ -42,6 +41,12 @@ struct ExpensesView: View {
 }
 
 #Preview {
-    ExpensesView()
+    do {
+        let previewer = try Previewer()
+        return ExpensesView()
+            .modelContainer(previewer.container)
+    } catch {
+        return Text("Failed to create preview: \(error.localizedDescription)")
+    }
 }
 
