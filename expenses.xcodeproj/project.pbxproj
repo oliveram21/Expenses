@@ -17,7 +17,6 @@
 		841C51B92C3456A3008C2115 /* expensesUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C51B82C3456A3008C2115 /* expensesUITestsLaunchTests.swift */; };
 		841C51C82C345783008C2115 /* ExpensesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C51C72C345783008C2115 /* ExpensesView.swift */; };
 		841C51CA2C345881008C2115 /* ExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C51C92C345881008C2115 /* ExpenseView.swift */; };
-		841C51CE2C346B76008C2115 /* AddExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C51CD2C346B76008C2115 /* AddExpenseView.swift */; };
 		841C51D12C346CD1008C2115 /* Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C51D02C346CD1008C2115 /* Preview.swift */; };
 /* End PBXBuildFile section */
 
@@ -52,7 +51,6 @@
 		841C51B82C3456A3008C2115 /* expensesUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = expensesUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		841C51C72C345783008C2115 /* ExpensesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesView.swift; sourceTree = "<group>"; };
 		841C51C92C345881008C2115 /* ExpenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseView.swift; sourceTree = "<group>"; };
-		841C51CD2C346B76008C2115 /* AddExpenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseView.swift; sourceTree = "<group>"; };
 		841C51D02C346CD1008C2115 /* Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preview.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -145,7 +143,6 @@
 				841C519B2C3456A1008C2115 /* ContentView.swift */,
 				841C51C72C345783008C2115 /* ExpensesView.swift */,
 				841C51C92C345881008C2115 /* ExpenseView.swift */,
-				841C51CD2C346B76008C2115 /* AddExpenseView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -299,7 +296,6 @@
 				841C519C2C3456A1008C2115 /* ContentView.swift in Sources */,
 				841C51CA2C345881008C2115 /* ExpenseView.swift in Sources */,
 				841C519E2C3456A1008C2115 /* Expense.swift in Sources */,
-				841C51CE2C346B76008C2115 /* AddExpenseView.swift in Sources */,
 				841C51D12C346CD1008C2115 /* Preview.swift in Sources */,
 				841C519A2C3456A1008C2115 /* expensesApp.swift in Sources */,
 				841C51C82C345783008C2115 /* ExpensesView.swift in Sources */,
