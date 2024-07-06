@@ -8,12 +8,12 @@
 import Foundation
 import SwiftData
 
-enum ExpenseType: Int, CaseIterable, Codable, CustomStringConvertible {
-    case receipt = 1, invoice = 2
+enum ExpenseType: String, CaseIterable, Codable, CustomStringConvertible, Hashable {
+    case receipt = "receipt", invoice = "invoice"
     var description: String {
         switch self {
-            case .receipt: return "receipt"
-            case .invoice: return "invoice"
+            case .receipt: return "Receipt"
+            case .invoice: return "Invoice"
         }
     }
 }
