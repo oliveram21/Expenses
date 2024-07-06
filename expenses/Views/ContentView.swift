@@ -11,32 +11,32 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State var showAddExpenceView = false
+    @State var didAdd = false
     
     var body: some View {
         NavigationStack {
-            ExpensesView()
-                .navigationTitle("Expenses")
+            ExpensesView(shouldRefreshAfterAdd: $didAdd)
+                .navigationTitle("Expenses:\(didAdd)")
                 .navigationDestination(for: Expense.self) { expense in
                     ExpenseView(expense: expense)
                 }
                 .toolbar {
                     ToolbarItem {
-                        Button("Add", action: { showAddExpenceView.toggle()})
+                        Button("Add", action: { 
+                            didAdd = false
+                            showAddExpenceView.toggle()})
                             .sheet(isPresented: $showAddExpenceView,
-                                   content: {
-                                AddExpenseWrapperView(showAddExpenceView: $showAddExpenceView)
-                            })
-                        
+                            content: { AddExpenseWrapperView(showAddExpenceView: $showAddExpenceView, shouldRefreshAfterAdd: $didAdd) })
                     }
+                }
             }
         }
-    }
-    
 }
 
 struct AddExpenseWrapperView: View {
     @Environment(\.modelContext) var modelContext
     @Binding var showAddExpenceView: Bool
+    @Binding var shouldRefreshAfterAdd: Bool
     
     var body: some View {
         NavigationStack {
@@ -50,7 +50,10 @@ struct AddExpenseWrapperView: View {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button("Done") {
                             addExpense(expense: newExpense)
+                            //this will trigger view refresh. It
+                            shouldRefreshAfterAdd = true
                             showAddExpenceView.toggle()
+                           
                         }
                     }
                 }

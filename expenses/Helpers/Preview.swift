@@ -12,12 +12,12 @@ import SwiftData
 struct Previewer {
     let container: ModelContainer
     let expense: Expense
-
+    let isPresented: Bool
     init() throws {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         container = try ModelContainer(for: Expense.self, configurations: config)
         expense = Expense(date: Date(), total: 22.2, currency: "RON", photoData: nil, type: .receipt)
-
+        isPresented = true
         container.mainContext.insert(expense)
     }
 }
