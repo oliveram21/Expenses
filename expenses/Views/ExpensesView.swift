@@ -90,15 +90,15 @@ struct ExpensesView: View {
     }
 }
 
-/*
+
 #Preview {
     do {
         let previewer = try Previewer()
-        return ExpensesView(shouldRefreshAfterAdd: $previewer.isPresented)
+        return ExpensesView(shouldRefreshAfterAdd: .constant(true))
             .modelContainer(previewer.container)
     } catch {
         return Text("Failed to create preview: \(error.localizedDescription)")
     }
 }
-*/
+
 
