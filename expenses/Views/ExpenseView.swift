@@ -66,12 +66,8 @@ struct ExpenseView: View {
 }
 
 #Preview {
-    do {
-        let previewer = try Previewer()
-        return ExpenseView(expense: previewer.expense)
-            .modelContainer(previewer.container)
-    } catch {
-        return Text("Failed to create preview: \(error.localizedDescription)")
-    }
+    let previewer = Previewer()
+    return ExpenseView(expense: previewer.expense)
+        .modelContainer(previewer.container)
 }
 

@@ -17,7 +17,6 @@ struct ExpensesView: View {
     @Binding var shouldRefreshAfterAdd: Bool
     
     var body: some View {
-        Text("count: \(expenses.count)")
         List {
             ForEach(expenses) { expense in
                 NavigationLink(value: expense) {
@@ -82,27 +81,11 @@ struct ExpensesView: View {
 }
 
 #Preview {
-   /* do {
-        let previewer = try Previewer()
-        return ExpensesView(shouldRefreshAfterAdd: .constant(true))
-            .modelContainer(previewer.container)
-    } catch {
-        return Text("Failed to create preview: \(error.localizedDescription)")
-    }
-    Task{
-        do {
-            let previewer = try Previewer()
-            return ExpensesView(shouldRefreshAfterAdd: .constant(true))
-                .modelContainer(previewer.container)
-        } catch {
-           
-        }
-    }
-    */
-    ExpensesView(shouldRefreshAfterAdd: .constant(true))
-        .environment(\.createDataHandler, DataProvider.shared.dataHandlerCreator(preview: true))
-        .environment(\.createDataHandlerWithMainContext, DataProvider.shared.dataHandlerWithMainContextCreator(preview: true))
-        .modelContainer(DataProvider.shared.previewContainer)
+    let previewer = Previewer()
+    return ExpensesView(shouldRefreshAfterAdd: .constant(true))
+    .environment(\.createDataHandler, DataProvider.shared.dataHandlerCreator(preview: true))
+    .environment(\.createDataHandlerWithMainContext, DataProvider.shared.dataHandlerWithMainContextCreator(preview: true))
+    .modelContainer(previewer.container)
 }
 
 

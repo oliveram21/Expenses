@@ -21,11 +21,7 @@ struct ExpenseTypeView: View {
 }
 
 #Preview {
-    do {
-        let previewer = try Previewer()
-        return ExpenseTypeView(text: previewer.expense.type.rawValue.first!.uppercased())
-            .modelContainer(previewer.container)
-    } catch {
-        return Text("Failed to create preview: \(error.localizedDescription)")
-    }
+    let previewer = Previewer()
+    return ExpenseTypeView(text: previewer.expense.type.rawValue.first!.uppercased())
+        .modelContainer(previewer.container)
 }

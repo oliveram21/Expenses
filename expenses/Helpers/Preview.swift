@@ -12,9 +12,8 @@ import SwiftData
 struct Previewer {
     let container: ModelContainer
     let expense: Expense
-    init() throws {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
-        container = try ModelContainer(for: Expense.self, configurations: config)
+    init() {
+        container = DataProvider.shared.previewContainer
         for amount in 1...10 {
             let exp =  Expense(date: Date(), total: Double(amount), currency: "RON", photoData: nil, type: .receipt)
             container.mainContext.insert(exp)
