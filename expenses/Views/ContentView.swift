@@ -10,6 +10,7 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.createDataHandler) private var createDataHandler
     @State var showAddExpenceView = false
     @State var didAdd = false
     
@@ -50,20 +51,33 @@ struct ContentView: View {
         showAddExpenceView.toggle()
     }
     
+    @MainActor
     fileprivate func doneAddExpense(expense: Expense) {
-        modelContext.insert(expense)
-        //this will trigger view refresh. It
-        didAdd = true
-        showAddExpenceView.toggle()
+     // let createDataHandler = createDataHandler
+        Task.detached {
+            if let dataHandler = await createDataHandler() {
+                do {
+                    try await dataHandler.newData(dataModel: expense)
+                } catch {
+                    print(error)
+                }
+                didAdd = true
+                showAddExpenceView.toggle()
+            }
+        }
     }
 }
 
 #Preview {
-    do {
+   /* do {
         let previewer = try Previewer()
         return ContentView()
             .modelContainer(previewer.container)
     } catch {
         return Text("Failed to create preview: \(error.localizedDescription)")
-    }
+    }*/
+    ContentView()
+        .environment(\.createDataHandler, DataProvider.shared.dataHandlerCreator(preview: true))
+        .environment(\.createDataHandlerWithMainContext, DataProvider.shared.dataHandlerWithMainContextCreator(preview: true))
+        .modelContainer(DataProvider.shared.previewContainer)
 }

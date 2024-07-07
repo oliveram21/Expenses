@@ -10,77 +10,68 @@ import SwiftData
 
 struct ExpensesView: View {
     @Environment(\.modelContext) var modelContext
-    @State private var expences: [Expense] = []
+    @Environment(\.createDataHandler) private var createDataHandler
+    @Environment(\.createDataHandlerWithMainContext) private var createDataHandlerWithMainContext
+    @State private var expenses: [Expense] = []
     @State private var currentPage: Int = 0
     @Binding var shouldRefreshAfterAdd: Bool
     
     var body: some View {
+        Text("count: \(expenses.count)")
         List {
-            ForEach(expences) { expense in
+            ForEach(expenses) { expense in
                 NavigationLink(value: expense) {
                     VStack(alignment: .leading) {
-                        Text("\(expense.type.description) amount: \(getTotalInCurrentCurrency(expense))")
-                            .font(.headline)
+                        HStack {
+                            ExpenseTypeView(text: expense.type.description.first!.uppercased())
+                            Text("amount: \(getTotalInCurrentCurrency(expense))")
+                                .font(.headline)
+                        }
                         Text("\(expense.date.formatted(date: .numeric, time: .standard))")
                             .font(.caption)
                     }
                 }.onAppear(perform: {
-                    loadExpencesIfNeeded(expense)
+                    loadMoreExpences(expense: expense, loadedExpensesCount: expenses.count)
                 })
             }.onDelete(perform: deleteExpense)
         }.onAppear(perform: {
-            if expences.count == 0 {
-                expences = []
-                loadMoreExpences()
-            }
+            loadMoreExpences(loadedExpensesCount: expenses.count)
         }).onChange(of: shouldRefreshAfterAdd) {
             //inserting new expence should trigger list refresh. 
             if shouldRefreshAfterAdd == true {
-                self.expences = []
-                currentPage = 0
-                loadMoreExpences(currentPage: currentPage)
+                self.expenses = []
+                loadMoreExpences(loadedExpensesCount: expenses.count)
             }
         }
     }
     
-    private func loadExpencesIfNeeded(_ expense: Expense) {
-        if let lastItem = expences.last, lastItem == expense {
-            let totalExpenses = totalExpences()
-            guard totalExpenses > expences.count else {return}
-            currentPage += 1
-            loadMoreExpences(currentPage: currentPage)
+    @MainActor
+    private func loadMoreExpences(expense: Expense? = nil, loadedExpensesCount: Int) {
+        var isLastItem = (expense == nil && loadedExpensesCount == 0) ? true : false
+        if let lastItem = expenses.last, let expense = expense, lastItem == expense {
+            isLastItem = true
         }
-    }
-    
-    private func totalExpences() -> Int {
-        let fetchDescriptor = FetchDescriptor<Expense>()
-        var count = 0
-        do {
-            count = try modelContext.fetchCount(fetchDescriptor)
-        } catch {
-            
+        guard isLastItem == true else {
+            return
         }
-        return count
-    }
-    
-    private func loadMoreExpences(currentPage: Int = 0) {
-        var fetchDescriptor = FetchDescriptor<Expense>()
-        fetchDescriptor.fetchLimit = 10
-        fetchDescriptor.fetchOffset = currentPage * 10
-        fetchDescriptor.sortBy = [.init(\.date, order: .reverse)]
-        
-        do {
-            self.expences += try modelContext.fetch(fetchDescriptor)
-        } catch {
-            print(error)
+        Task { @MainActor in
+             if let dataHandler = await createDataHandlerWithMainContext() {
+                 self.expenses +=  await dataHandler.loadMoreRecords(shoudLoadMore: isLastItem, loadOffset: loadedExpensesCount, sortBy: [.init(\Expense.date, order: .reverse)])
+             }
         }
     }
     
     private func deleteExpense(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(expences[index])
-                self.expences.remove(at: index)
+        Task.detached {
+            if let dataHandler = await createDataHandler() {
+                for index in offsets {
+                    do {
+                        try await dataHandler.delete(dataModel: expenses[index])
+                        expenses.remove(at: index)
+                    } catch {
+                        print(error)
+                    }
+                }
             }
         }
     }
@@ -90,15 +81,28 @@ struct ExpensesView: View {
     }
 }
 
-
 #Preview {
-    do {
+   /* do {
         let previewer = try Previewer()
         return ExpensesView(shouldRefreshAfterAdd: .constant(true))
             .modelContainer(previewer.container)
     } catch {
         return Text("Failed to create preview: \(error.localizedDescription)")
     }
+    Task{
+        do {
+            let previewer = try Previewer()
+            return ExpensesView(shouldRefreshAfterAdd: .constant(true))
+                .modelContainer(previewer.container)
+        } catch {
+           
+        }
+    }
+    */
+    ExpensesView(shouldRefreshAfterAdd: .constant(true))
+        .environment(\.createDataHandler, DataProvider.shared.dataHandlerCreator(preview: true))
+        .environment(\.createDataHandlerWithMainContext, DataProvider.shared.dataHandlerWithMainContextCreator(preview: true))
+        .modelContainer(DataProvider.shared.previewContainer)
 }
 
 
