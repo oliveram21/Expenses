@@ -17,7 +17,7 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ExpensesView(shouldRefreshAfterAdd: $didAdd)
-                .navigationTitle("Expenses:\(didAdd)")
+                .navigationTitle("Expenses")
                 .navigationDestination(for: Expense.self) { expense in
                     ExpenseView(expense: expense)
                 }
@@ -53,7 +53,6 @@ struct ContentView: View {
     
     @MainActor
     fileprivate func doneAddExpense(expense: Expense) {
-     // let createDataHandler = createDataHandler
         Task.detached {
             if let dataHandler = await createDataHandler() {
                 do {
@@ -61,23 +60,17 @@ struct ContentView: View {
                 } catch {
                     print(error)
                 }
-                didAdd = true
-                showAddExpenceView.toggle()
             }
         }
+        didAdd = true
+        showAddExpenceView.toggle()
     }
 }
 
 #Preview {
-   /* do {
-        let previewer = try Previewer()
-        return ContentView()
-            .modelContainer(previewer.container)
-    } catch {
-        return Text("Failed to create preview: \(error.localizedDescription)")
-    }*/
-    ContentView()
-        .environment(\.createDataHandler, DataProvider.shared.dataHandlerCreator(preview: true))
+    let previewer = Previewer()
+    return ContentView()
         .environment(\.createDataHandlerWithMainContext, DataProvider.shared.dataHandlerWithMainContextCreator(preview: true))
-        .modelContainer(DataProvider.shared.previewContainer)
+        .modelContainer(previewer.container)
+        .environment(\.createDataHandler, DataProvider.shared.dataHandlerCreator(preview: true))
 }
