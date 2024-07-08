@@ -10,13 +10,6 @@ import SwiftData
 
 @ModelActor
 public actor DataHandler {
-    @MainActor
-    public init(modelContainer: ModelContainer, mainActor: Bool) {
-        let modelContext = modelContainer.mainContext
-        modelExecutor = DefaultSerialModelExecutor(modelContext: modelContext)
-        self.modelContainer = modelContainer
-    }
-    
     public init(modelContainer: ModelContainer, customModelContext _:Bool) {
         let modelContext = ModelContext(modelContainer)
         modelExecutor = DefaultSerialModelExecutor(modelContext: modelContext)
