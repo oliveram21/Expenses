@@ -11,12 +11,13 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.createDataHandler) private var createDataHandler
+    @Environment(\.createDataHandlerWithMainContext) private var createDataHandlerWithMainContext
     @State var showAddExpenceView = false
     @State var didAdd = false
     
     var body: some View {
         NavigationStack {
-            ExpensesView(shouldRefreshAfterAdd: $didAdd)
+            ExpensesView(shouldRefreshAfterAdd: $didAdd, createDataHandler: createDataHandler, modelContext: modelContext)
                 .navigationTitle("Expenses")
                 .navigationDestination(for: Expense.self) { expense in
                     ExpenseView(expense: expense)
@@ -53,13 +54,14 @@ struct ContentView: View {
     
     @MainActor
     fileprivate func doneAddExpense(expense: Expense) {
+        let sendableExpense = SendableExpenseModel(expense: expense)
+        let createDataHandler = createDataHandler
         Task.detached {
-            if let dataHandler = await createDataHandler() {
-                do {
-                    try await dataHandler.newData(dataModel: expense)
-                } catch {
-                    print(error)
-                }
+            let dataHandler = await createDataHandler()
+            do {
+                try await dataHandler.newData(dataModel: sendableExpense)
+            } catch {
+                print(error)
             }
         }
         didAdd = true
