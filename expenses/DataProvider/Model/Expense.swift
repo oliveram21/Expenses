@@ -33,7 +33,15 @@ public final class Expense {
         self.photo = photoData
         self.type = type
     }
-    
+}
+
+extension Expense {
+    func getTotalInCurrentCurrency() -> String {
+        return String(total.formatted(.currency(code: currency)))
+    }
+}
+
+extension Expense {
     func updateFrom(sendableModel: SendableExpenseModel) {
         self.date = sendableModel.date
         self.total = sendableModel.total
@@ -43,6 +51,7 @@ public final class Expense {
     }
 }
 
+//convience struct to send model data between actors
 public struct SendableExpenseModel: Sendable {
     let date: Date
     let total: Double
@@ -51,12 +60,22 @@ public struct SendableExpenseModel: Sendable {
     let photo: Data?
     let persistentID: PersistentIdentifier?
     
+    init(date: Date = Date(), total: Double = 0, currency: String = "RON", photoData: Data? = nil, type: ExpenseType = .invoice, persistentId: PersistentIdentifier? = nil) {
+        self.date = date
+        self.total = total
+        self.currency = currency
+        self.photo = photoData
+        self.type = type.rawValue
+        persistentID = persistentId
+    }
+    
     init(expense: Expense) {
-        self.date = expense.date
-        self.total = expense.total
-        self.currency = expense.currency
-        self.photo = expense.photo
-        self.type = expense.type.rawValue
-        persistentID = expense.persistentModelID
+        self.init(date: expense.date,
+                  total: expense.total,
+                  currency: expense.currency,
+                  photoData: expense.photo,
+                  type: expense.type,
+                  persistentId: expense.persistentModelID)
+        
     }
 }

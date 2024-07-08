@@ -50,25 +50,4 @@ extension DataHandler {
     }
 }
 
-extension DataHandler {
-    //TODO: should be isoleted only with MainActor
-    public func loadMoreRecords<T: PersistentModel>(shoudLoadMore: Bool, loadOffset: Int, sortBy: [SortDescriptor<T>]) throws -> [T] {
-       
-        var fetchDescriptor = FetchDescriptor<T>()
-        if shoudLoadMore {
-            guard let totalRecords = try? modelContext.fetchCount(fetchDescriptor) else { return [] }
-            guard totalRecords > loadOffset else {return []}
-            
-            fetchDescriptor.fetchLimit = 20
-            fetchDescriptor.fetchOffset = loadOffset
-            fetchDescriptor.sortBy = sortBy
-            print("fetch offset:\(loadOffset) currentIndex:\(shoudLoadMore) total:\(totalRecords)")
-            do {
-                return try modelContext.fetch(fetchDescriptor)
-            } catch {
-                print(error)
-            }}
-        return []
-    }
-}
 
