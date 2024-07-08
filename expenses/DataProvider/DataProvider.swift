@@ -10,6 +10,8 @@ import SwiftData
 import SwiftUI
 
 public final class DataProvider: Sendable {
+    public typealias DataHandlerCreator =  @Sendable () async -> DataHandler
+    public typealias DataHandlerCreatorWithMainContext =  @Sendable @MainActor () async -> DataHandler
     public static let shared = DataProvider()
     
     public let sharedModelContainer: ModelContainer = {
@@ -37,36 +39,36 @@ public final class DataProvider: Sendable {
         }
     }()
     
-    public init() {}
+    private init() {}
     
-    public func dataHandlerCreator(preview: Bool = false) -> @Sendable () async -> DataHandler {
+    public func dataHandlerCreator(preview: Bool = false) -> DataHandlerCreator  {
         let container = preview ? previewContainer : sharedModelContainer
         return { DataHandler(modelContainer: container) }
     }
     
-    public func dataHandlerWithMainContextCreator(preview: Bool = false) -> @Sendable @MainActor () async -> DataHandler {
+    public func dataHandlerWithMainContextCreator(preview: Bool = false) -> DataHandlerCreatorWithMainContext {
         let container = preview ? previewContainer : sharedModelContainer
         return { DataHandler(modelContainer: container, mainActor: true) }
     }
 }
 
 public struct DataHandlerKey: EnvironmentKey {
-    public static let defaultValue: @Sendable () async -> DataHandler? = { nil }
+    public static let defaultValue: DataProvider.DataHandlerCreator = DataProvider.shared.dataHandlerCreator()
 }
 
 extension EnvironmentValues {
-    public var createDataHandler: @Sendable () async -> DataHandler? {
+    public var createDataHandler: DataProvider.DataHandlerCreator {
         get { self[DataHandlerKey.self] }
         set { self[DataHandlerKey.self] = newValue }
     }
 }
 
 public struct MainActorDataHandlerKey: EnvironmentKey {
-    public static let defaultValue: @Sendable @MainActor () async -> DataHandler? = { nil }
+    public static let defaultValue: DataProvider.DataHandlerCreatorWithMainContext = DataProvider.shared.dataHandlerWithMainContextCreator()
 }
 
 extension EnvironmentValues {
-    public var createDataHandlerWithMainContext: @Sendable @MainActor () async -> DataHandler? {
+    public var createDataHandlerWithMainContext: DataProvider.DataHandlerCreatorWithMainContext {
         get { self[MainActorDataHandlerKey.self] }
         set { self[MainActorDataHandlerKey.self] = newValue }
     }

@@ -10,7 +10,6 @@ import SwiftData
 
 @ModelActor
 public actor DataHandler {
-    
     @MainActor
     public init(modelContainer: ModelContainer, mainActor: Bool) {
         let modelContext = modelContainer.mainContext
@@ -28,25 +27,33 @@ public actor DataHandler {
 extension DataHandler {
     
     @discardableResult
-    public func newData<T: PersistentModel>(dataModel: T) throws -> PersistentIdentifier {
-        modelContext.insert(dataModel)
+    public func newData(dataModel: SendableExpenseModel) throws -> PersistentIdentifier {
+        let expense = Expense()
+        expense.updateFrom(sendableModel: dataModel)
+        modelContext.insert(expense)
         try modelContext.save()
-        return dataModel.persistentModelID
+        return expense.persistentModelID
     }
-    
-    public func update<T: PersistentModel>(dataModel: T) throws {
-        modelContext.insert(dataModel)
+   
+    public func update(dataModel: SendableExpenseModel) throws {
+        guard let id = dataModel.persistentID, let expense = self[id, as: Expense.self] else { return }
+        expense.updateFrom(sendableModel: dataModel)
+        modelContext.insert(expense)
         try modelContext.save()
         
     }
     
-    public func delete<T: PersistentModel>(dataModel: T) throws {
-        guard let item = self[dataModel.persistentModelID, as: T.self] else { return }
+    public func delete(persistentID: PersistentIdentifier) throws {
+        guard let item = self[persistentID, as: Expense.self] else { return }
         modelContext.delete(item)
         try modelContext.save()
     }
-    
-    public func loadMoreRecords<T: PersistentModel>(shoudLoadMore: Bool, loadOffset: Int, sortBy: [SortDescriptor<T>]) -> [T] {
+}
+
+extension DataHandler {
+    //TODO: should be isoleted only with MainActor
+    public func loadMoreRecords<T: PersistentModel>(shoudLoadMore: Bool, loadOffset: Int, sortBy: [SortDescriptor<T>]) throws -> [T] {
+       
         var fetchDescriptor = FetchDescriptor<T>()
         if shoudLoadMore {
             guard let totalRecords = try? modelContext.fetchCount(fetchDescriptor) else { return [] }
@@ -64,3 +71,4 @@ extension DataHandler {
         return []
     }
 }
+
