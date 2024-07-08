@@ -21,6 +21,7 @@
 		84380F7B2C391A05001E37D0 /* DataHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F7A2C391A05001E37D0 /* DataHandler.swift */; };
 		84380F7E2C39464E001E37D0 /* DataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F7D2C39464E001E37D0 /* DataProvider.swift */; };
 		84380F802C3A6DCB001E37D0 /* ExpenseTypyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F7F2C3A6DCB001E37D0 /* ExpenseTypyView.swift */; };
+		84380F822C3BEC21001E37D0 /* DataHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F812C3BEC21001E37D0 /* DataHandlerTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -58,6 +59,7 @@
 		84380F7A2C391A05001E37D0 /* DataHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataHandler.swift; sourceTree = "<group>"; };
 		84380F7D2C39464E001E37D0 /* DataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataProvider.swift; sourceTree = "<group>"; };
 		84380F7F2C3A6DCB001E37D0 /* ExpenseTypyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseTypyView.swift; sourceTree = "<group>"; };
+		84380F812C3BEC21001E37D0 /* DataHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataHandlerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -130,6 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				841C51AC2C3456A3008C2115 /* expensesTests.swift */,
+				84380F812C3BEC21001E37D0 /* DataHandlerTests.swift */,
 			);
 			path = expensesTests;
 			sourceTree = "<group>";
@@ -326,6 +329,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84380F822C3BEC21001E37D0 /* DataHandlerTests.swift in Sources */,
 				841C51AD2C3456A3008C2115 /* expensesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

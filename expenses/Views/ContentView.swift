@@ -52,6 +52,5 @@ struct ContentView: View {
 #Preview {
     let previewer = Previewer()
     return ContentView()
-        .environment(\.createDataHandlerWithMainContext, DataProvider.shared.dataHandlerWithMainContextCreator(preview: true))
         .modelContainer(previewer.container)
 }
