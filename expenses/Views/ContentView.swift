@@ -29,7 +29,7 @@ struct ContentView: View {
                             })
                     }
                 }
-        }
+        }.tint(.expenseTint)
     }
     
     @MainActor @ViewBuilder

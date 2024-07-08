@@ -20,10 +20,11 @@ struct ExpensesView: View {
                     VStack(alignment: .leading) {
                         HStack {
                             ExpenseTypeView(text: expense.type.description.first!.uppercased())
-                            Text("amount: \(expense.getTotalInCurrentCurrency())")
+                            Text("\(expense.getTotalInCurrentCurrency())")
                                 .font(.headline)
+                                .foregroundStyle(.expenseLabel)
                         }
-                        Text("\(expense.date.formatted(date: .numeric, time: .standard))")
+                        Text("\(expense.date.formatted(date: .abbreviated , time: .standard))")
                             .font(.caption)
                     }
                 }

@@ -12,8 +12,11 @@ struct ExpenseTypeView: View {
     
     var body: some View {
         ZStack {
-            Color.purple
+            Color.expenseTint
             Text(text)
+                .font(.title)
+                .fontWeight(.semibold)
+                .foregroundStyle(.white)
         }
         .frame(width: 41, height: 41)
         .cornerRadius(11)

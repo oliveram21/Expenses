@@ -31,12 +31,13 @@ struct ExpenseView: View {
                         .resizable()
                         .scaledToFit()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 200, height: 200)
                 }
                 HStack {
                     Button("Take photo", systemImage: "camera") {
                         self.showCamera.toggle()
+                        
                     }
+                    .foregroundColor(.expenseLabel)
                     .fullScreenCover(isPresented: self.$showCamera) {
                         CameraView(selectedImage: $photoData)
                     }
@@ -48,25 +49,35 @@ struct ExpenseView: View {
                         Text(type.description).tag(Optional(type))
                     }
                 }
+                .tint(.secondary)
+                .fontWeight(.semibold)
+                .foregroundStyle(.expenseLabel)
                 Picker("Currency", selection: $currency) {
                     ForEach(currencies, id: \.self) { currency in
                         Text(currency).tag(currency)
                     }
                 }
+                .tint(.secondary)
+                .fontWeight(.semibold)
+                .foregroundStyle(.expenseLabel)
                 HStack {
                     Text("Amount")
+                        .tint(.secondary)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.expenseLabel)
                     Spacer()
                     TextField("Amount", value: $total, format: .number)
-                   
                     .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/)
                     .multilineTextAlignment(.trailing)
                     .keyboardType(.numbersAndPunctuation)
+                    .foregroundStyle(.secondary)
                         
                 }
-                DatePicker("Expense date",
-                           selection: $date,
-                            displayedComponents: [.date])
-                            .datePickerStyle(.automatic)
+                DatePicker("Expense date",selection: $date, displayedComponents: [.date])
+                .datePickerStyle(.automatic)
+                .tint(.secondary)
+                .fontWeight(.semibold)
+                .foregroundStyle(.expenseLabel)
             }
         }
         .toolbar() {
