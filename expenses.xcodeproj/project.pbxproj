@@ -22,6 +22,7 @@
 		84380F7E2C39464E001E37D0 /* DataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F7D2C39464E001E37D0 /* DataProvider.swift */; };
 		84380F802C3A6DCB001E37D0 /* ExpenseTypyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F7F2C3A6DCB001E37D0 /* ExpenseTypyView.swift */; };
 		84380F822C3BEC21001E37D0 /* DataHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F812C3BEC21001E37D0 /* DataHandlerTests.swift */; };
+		84380F842C3BF981001E37D0 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F832C3BF981001E37D0 /* CameraView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +61,8 @@
 		84380F7D2C39464E001E37D0 /* DataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataProvider.swift; sourceTree = "<group>"; };
 		84380F7F2C3A6DCB001E37D0 /* ExpenseTypyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseTypyView.swift; sourceTree = "<group>"; };
 		84380F812C3BEC21001E37D0 /* DataHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataHandlerTests.swift; sourceTree = "<group>"; };
+		84380F832C3BF981001E37D0 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		84380F892C3BFEA3001E37D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +113,7 @@
 		841C51982C3456A1008C2115 /* expenses */ = {
 			isa = PBXGroup;
 			children = (
+				84380F892C3BFEA3001E37D0 /* Info.plist */,
 				84380F7C2C391A0F001E37D0 /* DataProvider */,
 				841C51CF2C346C85008C2115 /* Helpers */,
 				841C51C52C3456A9008C2115 /* Views */,
@@ -153,6 +157,7 @@
 				841C51C72C345783008C2115 /* ExpensesView.swift */,
 				841C51C92C345881008C2115 /* ExpenseView.swift */,
 				84380F7F2C3A6DCB001E37D0 /* ExpenseTypyView.swift */,
+				84380F832C3BF981001E37D0 /* CameraView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -316,6 +321,7 @@
 				841C519C2C3456A1008C2115 /* ContentView.swift in Sources */,
 				84380F7B2C391A05001E37D0 /* DataHandler.swift in Sources */,
 				84380F7E2C39464E001E37D0 /* DataProvider.swift in Sources */,
+				84380F842C3BF981001E37D0 /* CameraView.swift in Sources */,
 				841C51CA2C345881008C2115 /* ExpenseView.swift in Sources */,
 				841C519E2C3456A1008C2115 /* Expense.swift in Sources */,
 				841C51D12C346CD1008C2115 /* Preview.swift in Sources */,
@@ -419,6 +425,7 @@
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
 			};
 			name = Debug;
 		};
@@ -474,6 +481,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -489,6 +497,8 @@
 				DEVELOPMENT_TEAM = BUV6TS7UB9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = expenses/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs to capture photo to show them";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -519,6 +529,8 @@
 				DEVELOPMENT_TEAM = BUV6TS7UB9;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = expenses/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs to capture photo to show them";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -551,6 +563,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.economics.expensesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/expenses.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/expenses";
@@ -570,6 +583,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.economics.expensesTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/expenses.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/expenses";

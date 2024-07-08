@@ -15,15 +15,14 @@ struct ExpenseView: View {
     @Environment(\.dismiss) private var dismiss
     var expense: Expense?
     let currencies: [String] = NSLocale.isoCurrencyCodes
-    
-    @State var selectedItem: PhotosPickerItem?
     @State var photoData: Data?
     @State var expenceType: ExpenseType = .invoice
     @State var date: Date = Date()
     @State var total: Double = 0
     @State var currency: String = "RON"
     @State var expenseID: PersistentIdentifier?
-    
+    @State private var showCamera = false
+   
     var body: some View {
         Form {
             Section {
@@ -31,11 +30,17 @@ struct ExpenseView: View {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFit()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 200, height: 200)
                 }
-
-                PhotosPicker(selection: $selectedItem, matching: .images) {
-                    Label("Select a photo", systemImage: "camera")
-                }
+                HStack {
+                    Button("Take photo", systemImage: "camera") {
+                        self.showCamera.toggle()
+                    }
+                    .fullScreenCover(isPresented: self.$showCamera) {
+                        CameraView(selectedImage: $photoData)
+                    }
+              }
             }
             Section {
                 Picker("Type", selection: $expenceType) {
@@ -64,7 +69,6 @@ struct ExpenseView: View {
                             .datePickerStyle(.automatic)
             }
         }
-        .onChange(of: selectedItem, loadPhoto)
         .toolbar() {
             ToolbarItem(placement: .topBarTrailing) {
                 ToolBarContent()
@@ -108,13 +112,6 @@ struct ExpenseView: View {
             } catch {
                 print(error)
             }
-        }
-    }
-    @MainActor
-    func loadPhoto() {
-        let selectedItem = selectedItem
-        Task { @MainActor in
-            let photoData = try await selectedItem?.loadTransferable(type: Data.self)
         }
     }
 }
