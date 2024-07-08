@@ -11,14 +11,23 @@ import SwiftData
 
 struct ExpenseView: View {
     @Environment(\.modelContext) var modelContext
-    @Bindable var expense: Expense
-    @State private var selectedItem: PhotosPickerItem?
+    @Environment(\.createDataHandler) private var createDataHandler
+    @Environment(\.dismiss) private var dismiss
+    var expense: Expense?
     let currencies: [String] = NSLocale.isoCurrencyCodes
+    
+    @State var selectedItem: PhotosPickerItem?
+    @State var photoData: Data?
+    @State var expenceType: ExpenseType = .invoice
+    @State var date: Date = Date()
+    @State var total: Double = 0
+    @State var currency: String = "RON"
+    @State var expenseID: PersistentIdentifier?
     
     var body: some View {
         Form {
             Section {
-                if let imageData = expense.photo, let uiImage = UIImage(data: imageData) {
+                if let imageData = photoData, let uiImage = UIImage(data: imageData) {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFit()
@@ -29,12 +38,12 @@ struct ExpenseView: View {
                 }
             }
             Section {
-                Picker("Type", selection: $expense.type) {
+                Picker("Type", selection: $expenceType) {
                     ForEach(ExpenseType.allCases, id: \.self) { type in
                         Text(type.description).tag(Optional(type))
                     }
                 }
-                Picker("Currency", selection: $expense.currency) {
+                Picker("Currency", selection: $currency) {
                     ForEach(currencies, id: \.self) { currency in
                         Text(currency).tag(currency)
                     }
@@ -42,7 +51,7 @@ struct ExpenseView: View {
                 HStack {
                     Text("Amount")
                     Spacer()
-                    TextField("Amount", value: $expense.total, format: .number)
+                    TextField("Amount", value: $total, format: .number)
                    
                     .frame(width: /*@START_MENU_TOKEN@*/100/*@END_MENU_TOKEN@*/)
                     .multilineTextAlignment(.trailing)
@@ -50,17 +59,62 @@ struct ExpenseView: View {
                         
                 }
                 DatePicker("Expense date",
-                           selection: $expense.date,
+                           selection: $date,
                             displayedComponents: [.date])
                             .datePickerStyle(.automatic)
             }
         }
         .onChange(of: selectedItem, loadPhoto)
+        .toolbar() {
+            ToolbarItem(placement: .topBarTrailing) {
+                ToolBarContent()
+            }
+        }.onAppear() {
+            if let expense = expense {
+                photoData = expense.photo
+                expenceType =  expense.type
+                total = expense.total
+                currency = expense.currency
+                date = expense.date
+                expenseID = expense.persistentModelID
+            }
+        }
     }
-   
+    @ViewBuilder
+    func ToolBarContent() -> some View {
+        Button("Save") {
+            saveExpense()
+            dismiss()
+        }
+    }
+    
+    fileprivate func saveExpense() {
+        let sendableExpense = SendableExpenseModel(date:date,
+                                                   total: total,
+                                                   currency: currency,
+                                                   photoData: photoData,
+                                                   type: expenceType,
+                                                   persistentId: expenseID)
+        let createDataHandler = createDataHandler
+        let isNewExpense = (expense == nil)
+        Task.detached {
+            let dataHandler = await createDataHandler()
+            do {
+                if isNewExpense {
+                    try await dataHandler.newData(dataModel: sendableExpense)
+                } else {
+                    try await dataHandler.update(dataModel: sendableExpense)
+                }
+            } catch {
+                print(error)
+            }
+        }
+    }
+    @MainActor
     func loadPhoto() {
+        let selectedItem = selectedItem
         Task { @MainActor in
-            expense.photo = try await selectedItem?.loadTransferable(type: Data.self)
+            let photoData = try await selectedItem?.loadTransferable(type: Data.self)
         }
     }
 }
