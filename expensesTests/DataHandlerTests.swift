@@ -39,7 +39,8 @@ final class DataHandlerTests: XCTestCase {
 
       let amount = 20.2
       let dataModel = SendableExpenseModel(total: amount)
-      try await hander.newData(dataModel: dataModel)
+      
+      try await hander.newData(dataModel)
 
       let fetchDescriptor = FetchDescriptor<Expense>()
       let expenses = try container.mainContext.fetch(fetchDescriptor)
@@ -56,27 +57,33 @@ final class DataHandlerTests: XCTestCase {
     
     @MainActor
     func testDeleteExpense() async throws {
-     
-      let container = DataProvider.shared.testContainer()
-      let hander = DataHandler(modelContainer: container)
-
-      let amount = 20.2
-      let dataModel = SendableExpenseModel(total: amount)
-      try await hander.newData(dataModel: dataModel)
-
-      let fetchDescriptor = FetchDescriptor<Expense>()
-      let expenses = try container.mainContext.fetch(fetchDescriptor)
-
-      XCTAssertNotNil(expenses.first, "The expense should be created and fetched successfully.")
-      XCTAssertEqual(expenses.count, 1, "There should be exactly one expense in the store.")
-
-      if let firstExpense = expenses.first {
-          XCTAssertEqual(firstExpense.total, amount, "The expense total should match the initially provided amount.")
-      } else {
-        XCTFail("Expected to find an expense but none was found.")
-      }
-       try await hander.delete(persistentID: expenses.first!.persistentModelID)
-       try XCTAssertEqual(container.mainContext.fetchCount(fetchDescriptor),0, "The store should be empty")
+        
+        let container = DataProvider.shared.testContainer()
+        let hander = DataHandler(modelContainer: container)
+        
+        let amount = 20.2
+        let dataModel = SendableExpenseModel(total: amount)
+        try await hander.newData(dataModel)
+        
+        let fetchDescriptor = FetchDescriptor<Expense>()
+        let expenses = try container.mainContext.fetch(fetchDescriptor)
+        
+        XCTAssertNotNil(expenses.first, "The expense should be created and fetched successfully.")
+        XCTAssertEqual(expenses.count, 1, "There should be exactly one expense in the store.")
+        
+        if let firstExpense = expenses.first {
+            XCTAssertEqual(firstExpense.total, amount, "The expense total should match the initially provided amount.")
+        } else {
+            XCTFail("Expected to find an expense but none was found.")
+        }
+        do {
+            try await hander.delete(SendableExpenseModel())
+            XCTFail("model doesn't exist in the store. An exception is expected")
+        } catch {
+            
+        }
+        try await hander.delete(SendableExpenseModel(expenses.first!))
+        try XCTAssertEqual(container.mainContext.fetchCount(fetchDescriptor),0, "The store should be empty")
     }
     
     @MainActor
@@ -87,7 +94,7 @@ final class DataHandlerTests: XCTestCase {
 
       let amount = 20.2
       let dataModel = SendableExpenseModel(total: amount)
-      try await hander.newData(dataModel: dataModel)
+      try await hander.newData(dataModel)
 
       let fetchDescriptor = FetchDescriptor<Expense>()
       let expenses = try container.mainContext.fetch(fetchDescriptor)
@@ -102,17 +109,21 @@ final class DataHandlerTests: XCTestCase {
                                                  photoData: firstExpense.photo,
                                                  type: firstExpense.type,
                                                  persistentId: firstExpense.persistentModelID)
-          try await hander.update(dataModel: expenseSend)
+          try await hander.update(expenseSend)
           let updatedExpenses = try container.mainContext.fetch(fetchDescriptor)
           if let firstExpense = updatedExpenses.first {
               XCTAssertEqual(firstExpense.total, 0, "The expense total should match the initially provided amount.")
           }else {
               XCTFail("Expected to find an item but none was found.")
           }
-         
       } else {
         XCTFail("Expected to find an item but none was found.")
       }
-      
+        do {
+            try await hander.update(SendableExpenseModel())
+            XCTFail("Model doesn't exist in store. An exception is expected")
+        } catch is DataHandlerError {
+            
+        }
     }
 }

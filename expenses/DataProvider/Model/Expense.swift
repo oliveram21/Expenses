@@ -42,7 +42,7 @@ extension Expense {
 }
 
 extension Expense {
-    func updateFrom(sendableModel: SendableExpenseModel) {
+    func updateFrom(_ sendableModel: SendableExpenseModel) {
         self.date = sendableModel.date
         self.total = sendableModel.total
         self.currency = sendableModel.currency
@@ -69,13 +69,13 @@ public struct SendableExpenseModel: Sendable {
         persistentID = persistentId
     }
     
-    init(expense: Expense) {
-        self.init(date: expense.date,
-                  total: expense.total,
-                  currency: expense.currency,
-                  photoData: expense.photo,
-                  type: expense.type,
-                  persistentId: expense.persistentModelID)
+    public init(_ persistentModel: Expense) {
+        self.init(date: persistentModel.date,
+                  total: persistentModel.total,
+                  currency: persistentModel.currency,
+                  photoData: persistentModel.photo,
+                  type: persistentModel.type,
+                  persistentId: persistentModel.persistentModelID )
         
     }
 }

@@ -116,9 +116,9 @@ struct ExpenseView: View {
             let dataHandler = await createDataHandler()
             do {
                 if isNewExpense {
-                    try await dataHandler.newData(dataModel: sendableExpense)
+                    try await dataHandler.newData(sendableExpense)
                 } else {
-                    try await dataHandler.update(dataModel: sendableExpense)
+                    try await dataHandler.update(sendableExpense)
                 }
             } catch {
                 print(error)

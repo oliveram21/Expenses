@@ -33,12 +33,12 @@ struct ExpensesView: View {
     }
     
     private func deleteExpense(offsets: IndexSet) {
-        let modelIdentifier = expenses[offsets.first!].persistentModelID
+        let sendableExpense = SendableExpenseModel(expenses[offsets.first!])
         let createDataHandler = createDataHandler
         Task.detached {
             let dataHandler = await createDataHandler()
             do {
-                try await dataHandler.delete(persistentID: modelIdentifier)
+                try await dataHandler.delete(sendableExpense)
             } catch {
                 print(error)
             }
