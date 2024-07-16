@@ -9,48 +9,57 @@ import SwiftUI
 import SwiftData
 
 struct ExpensesView: View {
-    @Environment(\.modelContext) var modelContext
-    @Environment(\.createDataHandler) private var createDataHandler
-    @Query(sort: \Expense.date, order: .reverse) private var expenses: [Expense]
-   
+    @Binding var expensesStore: ExpensesStore
     var body: some View {
         List {
-            ForEach(expenses) { expense in
+            ForEach(expensesStore.expenses) { expense in
                 NavigationLink(value: expense) {
-                    VStack(alignment: .leading) {
-                        HStack {
-                            ExpenseTypeView(text: expense.type.description.first!.uppercased())
-                            Text("\(expense.getTotalInCurrentCurrency())")
-                                .font(.headline)
-                                .foregroundStyle(.expenseLabel)
-                        }
-                        Text("\(expense.date.formatted(date: .abbreviated , time: .standard))")
-                            .font(.caption)
-                    }
-                }
+                    ExpenseRow(expense: expense)
+                }.onAppear(perform: {
+                    expensesStore.loadMoreExpenses(expense: expense)
+                })
             }.onDelete(perform: deleteExpense)
-        }
+        }.onAppear(perform: {
+            expensesStore.loadMoreExpenses()
+        })
     }
     
-    private func deleteExpense(offsets: IndexSet) {
-        let sendableExpense = SendableExpenseModel(expenses[offsets.first!])
-        let createDataHandler = createDataHandler
-        Task.detached {
-            let dataHandler = await createDataHandler()
-            do {
-                try await dataHandler.delete(sendableExpense)
-            } catch {
-                print(error)
+    @MainActor private func deleteExpense(offsets: IndexSet) {
+        for offset in offsets {
+            let sendableExpense = SendableExpenseModel(expensesStore.expenses[offset])
+            expensesStore.deleteExpense(sendableExpense)
+        }
+    }
+}
+
+struct ExpenseRow: View{
+    let expense: Expense
+    var body: some View {
+        VStack(alignment: .leading) {
+            HStack {
+                ExpenseTypeView(text: expense.type.description.first!.uppercased())
+                Text("\(expense.getTotalInCurrentCurrency())")
+                    .font(.headline)
+                    .foregroundStyle(.expenseLabel)
             }
+            Text("\(expense.date.formatted(date: .abbreviated , time: .standard))")
+                .font(.caption)
         }
     }
 }
 
 #Preview {
-    let previewer = Previewer()
-    return ExpensesView()
-    .environment(\.createDataHandler, DataProvider.shared.dataHandlerCreator(preview: true))
-    .modelContainer(previewer.container)
-}
+    struct ExpensesPreviewContainer : View {
+       @State var expensesStore: ExpensesStore
+       @MainActor init() {
+            let previewer = Previewer()
+           _expensesStore = State(initialValue: previewer.expensesStore)
+       }
+       var body: some View {
+           ExpensesView(expensesStore: $expensesStore)
+       }
+    }
 
+    return ExpensesPreviewContainer()
+}
 

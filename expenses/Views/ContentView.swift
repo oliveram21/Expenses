@@ -9,15 +9,21 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @State var showAddExpenceView = false
+    @State var expensesStore: ExpensesStore
+    @State private var showAddExpenceView = false
    
+    @MainActor
+    init(modelContext: ModelContext, createDataHandler: @escaping DataProvider.DataHandlerCreator) {
+        let expenseStore =  ExpensesStore(createHandler: createDataHandler, mainContext: modelContext)
+        _expensesStore = State(initialValue: expenseStore)
+    }
+    
     var body: some View {
         NavigationStack {
-            ExpensesView()
+               ExpensesView(expensesStore: $expensesStore)
                 .navigationTitle("Expenses")
                 .navigationDestination(for: Expense.self) { expense in
-                    ExpenseView(expense: expense)
+                    ExpenseView(expense: expense, expensesStore: $expensesStore)
                 }
                 .toolbar {
                     ToolbarItem {
@@ -25,7 +31,7 @@ struct ContentView: View {
                             .sheet(isPresented: $showAddExpenceView,
                                    content: {
                                 //embbed ExpenseView in navigation stack in order to decorate it with cancel and add button
-                                AddExpenseSheetView()
+                                addExpenseSheetView()
                             })
                     }
                 }
@@ -33,9 +39,9 @@ struct ContentView: View {
     }
     
     @MainActor @ViewBuilder
-    func AddExpenseSheetView() -> some View {
+    func addExpenseSheetView() -> some View {
         NavigationStack {
-            ExpenseView(expense: nil)
+            ExpenseView(expense: nil, expensesStore: $expensesStore)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Cancel") {showAddExpenceView.toggle()}
@@ -51,6 +57,5 @@ struct ContentView: View {
 
 #Preview {
     let previewer = Previewer()
-    return ContentView()
-        .modelContainer(previewer.container)
+    return ContentView(modelContext: previewer.container.mainContext, createDataHandler: previewer.dataHandlerCreator)
 }

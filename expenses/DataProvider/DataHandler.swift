@@ -24,7 +24,9 @@ public actor DataHandler: DataHandlerProtocol {
     }
     
      public func update(_ dataModel: SendableExpenseModel) throws  {
-        guard  let id = dataModel.persistentID, let expense = self[id, as: Expense.self] else { throw DataHandlerError.missing(dataModel) }
+         guard  let id = dataModel.persistentID, let expense = self[id, as: Expense.self] else {
+             throw DataHandlerError.missing(dataModel)
+         }
         expense.updateFrom(dataModel)
         modelContext.insert(expense)
          do {
@@ -35,7 +37,9 @@ public actor DataHandler: DataHandlerProtocol {
     }
     
     public func delete(_ dataModel: SendableExpenseModel) throws {
-        guard let id = dataModel.persistentID, let item = self[id, as: Expense.self] else { throw DataHandlerError.missing(dataModel) }
+        guard let id = dataModel.persistentID, let item = self[id, as: Expense.self] else {
+            throw DataHandlerError.missing(dataModel)
+        }
         modelContext.delete(item)
         do {
             try modelContext.save()

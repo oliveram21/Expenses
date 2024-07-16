@@ -30,9 +30,7 @@ public final class DataProvider: Sendable {
     public static let shared = DataProvider()
     
     public let sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Expense.self,
-        ])
+        let schema = Schema([Expense.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         
         do {
@@ -43,9 +41,7 @@ public final class DataProvider: Sendable {
     }()
     
     public let previewContainer: ModelContainer = {
-        let schema = Schema([
-            Expense.self,
-        ])
+        let schema = Schema([Expense.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
@@ -65,28 +61,13 @@ public final class DataProvider: Sendable {
     }
     
     public func testContainer() -> ModelContainer {
-        let schema = Schema([
-            Expense.self,
-        ])
+        let schema = Schema([Expense.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
-    }
-    
-}
-
-public struct DataHandlerKey: EnvironmentKey {
-    public static let defaultValue: DataProvider.DataHandlerCreator = DataProvider.shared.dataHandlerCreator()
-}
-
-//used to inject datahandler creation in view's enviroment
-extension EnvironmentValues {
-    public var createDataHandler: DataProvider.DataHandlerCreator {
-        get { self[DataHandlerKey.self] }
-        set { self[DataHandlerKey.self] = newValue }
     }
 }
 
