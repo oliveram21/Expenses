@@ -7,9 +7,11 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
-@Observable @MainActor
-class ExpensesStore {
+@MainActor
+@Observable class ExpensesStore {
+    static let fetchPageSize = 20
     private var createHandler: DataProvider.DataHandlerCreator
     private var modelContext: ModelContext
     var expenses: [Expense] = []
@@ -33,7 +35,7 @@ class ExpensesStore {
     //fetch a limited number of expenses from a given offset
     //Using custom descriptor instead of @Query has some disavantages: model changes arent' tracked by default,
     //iCloud sync is not automatically done
-    public func loadMoreRecords(shoudLoadMore: Bool, loadOffset: Int, fetchLimit: Int = 20)  -> [Expense] {
+    public func loadMoreRecords(shoudLoadMore: Bool, loadOffset: Int, fetchLimit: Int = ExpensesStore.fetchPageSize)  -> [Expense] {
        var fetchDescriptor = FetchDescriptor<Expense>()
         if shoudLoadMore {
             guard let totalRecords = try? modelContext.fetchCount(fetchDescriptor) else { return [] }
@@ -42,7 +44,7 @@ class ExpensesStore {
             fetchDescriptor.fetchLimit = fetchLimit
             fetchDescriptor.fetchOffset = loadOffset
             fetchDescriptor.sortBy = [.init(\Expense.date, order: .reverse)]
-            print("fetch offset:\(loadOffset) currentIndex:\(shoudLoadMore) total:\(totalRecords)")
+            print("fetch offset:\(loadOffset) currentIndex:\(shoudLoadMore) total:\(totalRecords) limit:\(fetchLimit)")
             do {
                 return try modelContext.fetch(fetchDescriptor)
             } catch {
@@ -53,9 +55,10 @@ class ExpensesStore {
     }
     
     func reloadExpenses() {
-        let loadedExpensesCount = expenses.count
-        self.expenses = []
-        self.expenses += loadMoreRecords(shoudLoadMore: true, loadOffset: 0, fetchLimit: loadedExpensesCount)
+        let loadedExpensesCount = max(expenses.count,ExpensesStore.fetchPageSize)
+        self.expenses.removeAll()
+        self.expenses = loadMoreRecords(shoudLoadMore: true, loadOffset: 0, fetchLimit: loadedExpensesCount)
+        print("total reloaded:\(self.expenses.count)")
     }
     
     func saveExpense(_ expense: SendableExpenseModel, isNew: Bool = false) {

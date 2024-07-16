@@ -9,7 +9,7 @@ import SwiftUI
 import SwiftData
 
 struct ExpensesView: View {
-    @Binding var expensesStore: ExpensesStore
+    @Environment(ExpensesStore.self) var expensesStore
     var body: some View {
         List {
             ForEach(expensesStore.expenses) { expense in
@@ -49,17 +49,8 @@ struct ExpenseRow: View{
 }
 
 #Preview {
-    struct ExpensesPreviewContainer : View {
-       @State var expensesStore: ExpensesStore
-       @MainActor init() {
-            let previewer = Previewer()
-           _expensesStore = State(initialValue: previewer.expensesStore)
-       }
-       var body: some View {
-           ExpensesView(expensesStore: $expensesStore)
-       }
-    }
-
-    return ExpensesPreviewContainer()
+    let previewer = Previewer()
+    return ExpensesView()
+        .environment(previewer.expensesStore)
 }
 

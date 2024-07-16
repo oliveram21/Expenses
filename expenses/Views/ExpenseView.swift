@@ -11,8 +11,10 @@ import SwiftData
 
 struct ExpenseView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(ExpensesStore.self) var expensesStore: ExpensesStore
+    
     var expense: Expense?
-    @Binding var expensesStore: ExpensesStore
+    
     @State var photoData: Data?
     @State var expenceType: ExpenseType = .invoice
     @State var date: Date = Date()
@@ -116,17 +118,13 @@ struct ExpenseView: View {
 
 #Preview {
     struct ExpensePreviewContainer : View {
-       @State var expensesStore: ExpensesStore
-       @MainActor init() {
-            let previewer = Previewer()
-           _expensesStore = State(initialValue: previewer.expensesStore)
-       }
        var body: some View {
            NavigationStack {
-               ExpenseView(expensesStore: $expensesStore)
+               ExpenseView()
            }
        }
     }
-
+    let previewer = Previewer()
     return ExpensePreviewContainer()
+        .environment(previewer.expensesStore)
 }

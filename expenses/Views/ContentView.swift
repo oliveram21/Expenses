@@ -9,21 +9,15 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @State var expensesStore: ExpensesStore
     @State private var showAddExpenceView = false
+    @Environment(ExpensesStore.self) var expensesStore
    
-    @MainActor
-    init(modelContext: ModelContext, createDataHandler: @escaping DataProvider.DataHandlerCreator) {
-        let expenseStore =  ExpensesStore(createHandler: createDataHandler, mainContext: modelContext)
-        _expensesStore = State(initialValue: expenseStore)
-    }
-    
     var body: some View {
         NavigationStack {
-               ExpensesView(expensesStore: $expensesStore)
+                ExpensesView()
                 .navigationTitle("Expenses")
                 .navigationDestination(for: Expense.self) { expense in
-                    ExpenseView(expense: expense, expensesStore: $expensesStore)
+                    ExpenseView(expense: expense)
                 }
                 .toolbar {
                     ToolbarItem {
@@ -36,12 +30,13 @@ struct ContentView: View {
                     }
                 }
         }.tint(.expenseTint)
+            
     }
     
     @MainActor @ViewBuilder
     func addExpenseSheetView() -> some View {
         NavigationStack {
-            ExpenseView(expense: nil, expensesStore: $expensesStore)
+            ExpenseView(expense: nil)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Cancel") {showAddExpenceView.toggle()}
@@ -54,8 +49,9 @@ struct ContentView: View {
         showAddExpenceView.toggle()
     }
 }
-
+    
 #Preview {
     let previewer = Previewer()
-    return ContentView(modelContext: previewer.container.mainContext, createDataHandler: previewer.dataHandlerCreator)
+    return ContentView()
+        .environment(previewer.expensesStore)
 }
