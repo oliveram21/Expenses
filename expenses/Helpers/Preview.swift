@@ -12,6 +12,7 @@ import SwiftData
 struct Previewer {
     let container: ModelContainer
     let expense: Expense
+    let dataHandlerCreator =  DataProvider.shared.dataHandlerCreator(preview: true)
     init() {
         container = DataProvider.shared.previewContainer
         for amount in 1...10 {

@@ -53,4 +53,5 @@ struct ContentView: View {
     let previewer = Previewer()
     return ContentView()
         .modelContainer(previewer.container)
+        .environment(\.createDataHandler, previewer.dataHandlerCreator)
 }
