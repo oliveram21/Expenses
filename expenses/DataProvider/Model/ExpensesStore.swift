@@ -30,7 +30,10 @@ import SwiftUI
         guard isLastItem == true else {
             return
         }
-        self.expenses += loadMoreRecords(shoudLoadMore: isLastItem, loadOffset: expenses.count)
+        let moreExpenses = loadMoreRecords(shoudLoadMore: isLastItem, loadOffset: expenses.count)
+        guard !moreExpenses.isEmpty else {return}
+        //don't trigger ui refresh if there is nothing to load
+        self.expenses += moreExpenses
     }
     //fetch a limited number of expenses from a given offset
     //Using custom descriptor instead of @Query has some disavantages: model changes arent' tracked by default,
@@ -74,7 +77,7 @@ import SwiftUI
                 //fetch again the same number of expenses in order to preserv scroll position
                 await self.reloadExpenses()
             } catch {
-                print("save exception")
+                print("save exception:\(error)")
             }
         }
     }
@@ -91,5 +94,30 @@ import SwiftUI
                 print("delete exception")
             }
         }
+    }
+    func searchExpenseById(id: UUID) -> Expense? {
+        print("search :\(id)")
+        let predicate =  #Predicate<Expense>{ expense in
+            expense.expenseID == id
+        }
+        //search in local list
+        do {
+            if let expense = try expenses.filter(predicate).first {
+                return expense
+            }
+        }catch {
+            print("filter expenses fail:\(error)")
+        }
+        var fetcDescriptor = FetchDescriptor<Expense>()
+        fetcDescriptor.predicate = predicate
+        
+        var expense: Expense? = nil
+        do {
+            expense = try modelContext.fetch(fetcDescriptor).first
+        } catch {
+            print("fetch expenses fail:\(error)")
+        }
+        
+        return expense
     }
 }

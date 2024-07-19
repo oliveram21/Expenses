@@ -12,20 +12,19 @@ import SwiftData
 struct ExpenseView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(ExpensesStore.self) var expensesStore: ExpensesStore
-    
     var expense: Expense?
+    @SceneStorage("ExpenseView.photoData") var photoData: Data?
+    @SceneStorage("ExpenseView.expenceType") var expenceType: ExpenseType = .invoice
+    @SceneStorage("ExpenseView.date") var date = Date()
+    @SceneStorage("ExpenseView.total") var total: Double = 0
+    @SceneStorage("ExpenseView.currency") var currency: String = "RON"
+    @SceneStorage("ExpenseView.showCamera")  var showCamera = false
     
-    @State var photoData: Data?
-    @State var expenceType: ExpenseType = .invoice
-    @State var date: Date = Date()
-    @State var total: Double = 0
-    @State var currency: String = "RON"
-    @State var expenseID: PersistentIdentifier?
-    @State private var showCamera = false
     var body: some View {
         Form {
             Section {
                 if let imageData = photoData, let uiImage = UIImage(data: imageData) {
+
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFit()
@@ -37,7 +36,7 @@ struct ExpenseView: View {
                         
                     }
                     .foregroundColor(.expenseLabel)
-                    .fullScreenCover(isPresented: self.$showCamera) {
+                    .fullScreenCover(isPresented: $showCamera) {
                         CameraView(selectedImage: $photoData)
                     }
               }
@@ -72,12 +71,11 @@ struct ExpenseView: View {
                     .foregroundStyle(.secondary)
                         
                 }
-                DatePicker("Expense date",selection: $date, displayedComponents: [.date])
+                DatePicker("Expense date",selection:$date, displayedComponents: [.date])
                 .datePickerStyle(.automatic)
                 .tint(.secondary)
                 .fontWeight(.semibold)
                 .foregroundStyle(.expenseLabel)
-                
             }
         }
         .toolbar() {
@@ -86,12 +84,7 @@ struct ExpenseView: View {
             }
         }.onAppear() {
             if let expense = expense {
-                photoData = expense.photo
-                expenceType =  expense.type
-                total = expense.total
-                currency = expense.currency
-                date = expense.date
-                expenseID = expense.persistentModelID
+                updateFromExpense(expense: expense)
             }
         }
     }
@@ -104,15 +97,37 @@ struct ExpenseView: View {
     }
     @MainActor
     fileprivate func saveExpense() {
-        let sendableExpense = SendableExpenseModel(date:date,
+        let isNewExpense = (expense == nil)
+        let sendableExpense = SendableExpenseModel(date: date,
                                                    total: total,
                                                    currency: currency,
                                                    photoData: photoData,
                                                    type: expenceType,
-                                                   persistentId: expenseID)
+                                                   persistentId: expense?.persistentModelID,
+                                                   id: isNewExpense ? nil: expense!.expenseID
+                                                   )
        
-        let isNewExpense = (expense == nil)
+        
         expensesStore.saveExpense(sendableExpense, isNew: isNewExpense)
+        //reset state to initial state in order to cleanup scenestorage.
+        resetStateToDefaultValues()
+    }
+    
+    func resetStateToDefaultValues() {
+        photoData = nil
+        expenceType = .invoice
+        date = Date()
+        total = 0
+        currency = "RON"
+        showCamera = false
+    }
+    
+    func updateFromExpense(expense: Expense) {
+        photoData = expense.photo
+        expenceType =  expense.type
+        total = expense.total
+        currency = expense.currency
+        date = expense.date
     }
 }
 

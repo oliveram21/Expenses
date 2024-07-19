@@ -8,17 +8,24 @@
 import SwiftUI
 import SwiftData
 
+
 struct ContentView: View {
-    @State private var showAddExpenceView = false
     @Environment(ExpensesStore.self) var expensesStore
-   
+    @SceneStorage("ContentView.showAddExpenceView") var showAddExpenceView =  false
+    //use AppStorage instead of scenestorage because it triggers multiple refreshes
+    @AppStorage("ContentView.path") var path: [UUID] = []
+    
     var body: some View {
-        NavigationStack {
-                ExpensesView()
+        NavigationStack(path: $path) {
+               ExpensesView()
                 .navigationTitle("Expenses")
-                .navigationDestination(for: Expense.self) { expense in
-                    ExpenseView(expense: expense)
-                }
+            //search expense by id because on state restoration the list may not contain
+            //the expense.persistentModelID fails to be initialized from a decoder
+                .navigationDestination(for: UUID.self) { id in
+                    if let expense = expensesStore.searchExpenseById(id: id) {
+                        ExpenseView(expense: expense)
+                    }
+               }
                 .toolbar {
                     ToolbarItem {
                         Button("Add", action: {addExpense()})

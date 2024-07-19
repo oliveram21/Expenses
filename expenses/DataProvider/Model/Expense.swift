@@ -20,6 +20,7 @@ public enum ExpenseType: String, CaseIterable, Codable, CustomStringConvertible,
 
 @Model
 public final class Expense {
+    public var expenseID: UUID
     var date: Date
     var total: Double
     var currency: String
@@ -32,7 +33,31 @@ public final class Expense {
         self.currency = currency
         self.photo = photoData
         self.type = type
+        self.expenseID = UUID()
     }
+    /*
+    enum CodingKeys: CodingKey {
+        case date,total,currency,type,id
+    }
+    
+    required public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            date = try container.decode(Date.self, forKey: .date)
+            total = try container.decode(Double.self, forKey: .date)
+            currency = try container.decode(String.self, forKey: .date)
+            type = try container.decode(ExpenseType.self, forKey: .date)
+         id = try container.decode(UUID.self, forKey: .id)
+       
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(date, forKey: .date)
+        try container.encode(total, forKey: .total)
+        try container.encode(currency, forKey: .currency)
+        try container.encode(type, forKey: .type)
+        try container.encode(id, forKey: .id)
+    }*/
 }
 
 extension Expense {
@@ -59,14 +84,16 @@ public struct SendableExpenseModel: Sendable {
     let type: String
     let photo: Data?
     let persistentID: PersistentIdentifier?
+    let id: UUID?
     
-    init(date: Date = Date(), total: Double = 0, currency: String = "RON", photoData: Data? = nil, type: ExpenseType = .invoice, persistentId: PersistentIdentifier? = nil) {
+    init(date: Date = Date(), total: Double = 0, currency: String = "RON", photoData: Data? = nil, type: ExpenseType = .invoice, persistentId: PersistentIdentifier? = nil, id: UUID? = nil) {
         self.date = date
         self.total = total
         self.currency = currency
         self.photo = photoData
         self.type = type.rawValue
-        persistentID = persistentId
+        self.persistentID = persistentId
+        self.id = id
     }
     
     public init(_ persistentModel: Expense) {
@@ -75,7 +102,8 @@ public struct SendableExpenseModel: Sendable {
                   currency: persistentModel.currency,
                   photoData: persistentModel.photo,
                   type: persistentModel.type,
-                  persistentId: persistentModel.persistentModelID )
+                  persistentId: persistentModel.persistentModelID,
+                  id: persistentModel.expenseID)
         
     }
 }

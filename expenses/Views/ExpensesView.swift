@@ -12,8 +12,8 @@ struct ExpensesView: View {
     @Environment(ExpensesStore.self) var expensesStore
     var body: some View {
         List {
-            ForEach(expensesStore.expenses) { expense in
-                NavigationLink(value: expense) {
+            ForEach(expensesStore.expenses, id: \.persistentModelID) { expense in
+                NavigationLink(value: expense.expenseID) {
                     ExpenseRow(expense: expense)
                 }.onAppear(perform: {
                     expensesStore.loadMoreExpenses(expense: expense)
