@@ -8,6 +8,9 @@
 import Foundation
 import SwiftData
 
+enum PreviewError: LocalizedError {
+    case missing
+}
 @MainActor
 struct Previewer {
     let container: ModelContainer = DataProvider.shared.previewContainer

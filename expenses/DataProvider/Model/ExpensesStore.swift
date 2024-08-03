@@ -16,43 +16,48 @@ import SwiftUI
     private var modelContext: ModelContext
     var expenses: [Expense] = []
     let currencies: [String] = NSLocale.isoCurrencyCodes
+    var storeError: ErrorWrapper?
     
     init(createHandler: @escaping DataProvider.DataHandlerCreator, mainContext: ModelContext) {
         self.createHandler = createHandler
         self.modelContext = mainContext
     }
-    
+}
+
+extension ExpensesStore {
     func loadMoreExpenses(expense: Expense? = nil) {
-        var isLastItem = (expense == nil && expenses.count == 0) ? true : false
-        if let lastItem = expenses.last, let expense = expense, lastItem == expense {
-            isLastItem = true
+        var isLastExpense = (expense == nil && expenses.isEmpty) ? true : false
+        if let lastItem = expenses.last, let expense, lastItem == expense {
+            isLastExpense = true
         }
-        guard isLastItem == true else {
+        //load more expenses only if user reached the end of the loaded expenses list
+        guard isLastExpense == true else {
             return
         }
-        let moreExpenses = loadMoreRecords(shoudLoadMore: isLastItem, loadOffset: expenses.count)
-        guard !moreExpenses.isEmpty else {return}
+        let moreExpenses = loadMoreRecords(shoudLoadMore: isLastExpense, loadOffset: expenses.count)
+        
         //don't trigger ui refresh if there is nothing to load
+        guard !moreExpenses.isEmpty else { return }
+        
         self.expenses += moreExpenses
     }
+    
     //fetch a limited number of expenses from a given offset
     //Using custom descriptor instead of @Query has some disavantages: model changes arent' tracked by default,
     //iCloud sync is not automatically done
     public func loadMoreRecords(shoudLoadMore: Bool, loadOffset: Int, fetchLimit: Int = ExpensesStore.fetchPageSize)  -> [Expense] {
-       var fetchDescriptor = FetchDescriptor<Expense>()
+       
         if shoudLoadMore {
+            var fetchDescriptor = FetchDescriptor<Expense>()
             guard let totalRecords = try? modelContext.fetchCount(fetchDescriptor) else { return [] }
-            guard totalRecords > loadOffset else {return []}
+            guard totalRecords > loadOffset else { return [] }
             
             fetchDescriptor.fetchLimit = fetchLimit
             fetchDescriptor.fetchOffset = loadOffset
             fetchDescriptor.sortBy = [.init(\Expense.date, order: .reverse)]
             print("fetch offset:\(loadOffset) currentIndex:\(shoudLoadMore) total:\(totalRecords) limit:\(fetchLimit)")
-            do {
-                return try modelContext.fetch(fetchDescriptor)
-            } catch {
-                print(error)
-            }
+            let expenses = try? modelContext.fetch(fetchDescriptor)
+            return expenses == nil ? [] : expenses!
         }
         return []
     }
@@ -64,6 +69,24 @@ import SwiftUI
         print("total reloaded:\(self.expenses.count)")
     }
     
+    func searchExpenseById(id: UUID) -> Expense? {
+       
+        let predicate =  #Predicate<Expense>{ expense in
+            expense.expenseID == id
+        }
+        //search in local list
+        if let expense = try? expenses.filter(predicate).first {
+            return expense
+        }
+        
+        var fetcDescriptor = FetchDescriptor<Expense>()
+        fetcDescriptor.predicate = predicate
+        //search in DB
+        return try? modelContext.fetch(fetcDescriptor).first
+    }
+}
+
+extension ExpensesStore {
     func saveExpense(_ expense: SendableExpenseModel, isNew: Bool = false) {
         let createDataHandler = createHandler
         Task.detached {
@@ -76,48 +99,25 @@ import SwiftUI
                 }
                 //fetch again the same number of expenses in order to preserv scroll position
                 await self.reloadExpenses()
-            } catch {
-                print("save exception:\(error)")
+            } catch let error as DataHandlerError {
+                await self.setError(error: error)
             }
         }
     }
     
    func deleteExpense(_ expense: SendableExpenseModel) {
-        let createDataHandler = createHandler
         Task.detached {
-            let dataHandler = await createDataHandler()
+            let dataHandler = await self.createHandler()
             do {
                 try await dataHandler.delete(expense)
-                //fetch again the same number of expenses in order to preserv scroll position.
                 await self.reloadExpenses()
-            } catch {
-                print("delete exception")
+            } catch let error as DataHandlerError {
+                await self.setError(error: error)
             }
         }
     }
-    func searchExpenseById(id: UUID) -> Expense? {
-        print("search :\(id)")
-        let predicate =  #Predicate<Expense>{ expense in
-            expense.expenseID == id
-        }
-        //search in local list
-        do {
-            if let expense = try expenses.filter(predicate).first {
-                return expense
-            }
-        }catch {
-            print("filter expenses fail:\(error)")
-        }
-        var fetcDescriptor = FetchDescriptor<Expense>()
-        fetcDescriptor.predicate = predicate
-        
-        var expense: Expense? = nil
-        do {
-            expense = try modelContext.fetch(fetcDescriptor).first
-        } catch {
-            print("fetch expenses fail:\(error)")
-        }
-        
-        return expense
+    
+    func setError(message: String = "", error: DataHandlerError) {
+        storeError = ErrorWrapper(message: error.localizedDescription, error: error)
     }
 }

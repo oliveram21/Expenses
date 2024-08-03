@@ -10,12 +10,14 @@ import SwiftData
 
 @ModelActor
 public actor DataHandler: DataHandlerProtocol {
+    
    @discardableResult
     public func newData(_ dataModel: SendableExpenseModel) throws -> SendableExpenseModel {
         let expense = Expense()
         expense.updateFrom(dataModel)
         modelContext.insert(expense)
         do {
+            //call save to synchronize with maincontext
             try modelContext.save()
         } catch {
             throw DataHandlerError.create(dataModel)

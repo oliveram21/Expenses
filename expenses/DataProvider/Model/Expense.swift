@@ -35,29 +35,6 @@ public final class Expense {
         self.type = type
         self.expenseID = UUID()
     }
-    /*
-    enum CodingKeys: CodingKey {
-        case date,total,currency,type,id
-    }
-    
-    required public init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            date = try container.decode(Date.self, forKey: .date)
-            total = try container.decode(Double.self, forKey: .date)
-            currency = try container.decode(String.self, forKey: .date)
-            type = try container.decode(ExpenseType.self, forKey: .date)
-         id = try container.decode(UUID.self, forKey: .id)
-       
-    }
-
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(date, forKey: .date)
-        try container.encode(total, forKey: .total)
-        try container.encode(currency, forKey: .currency)
-        try container.encode(type, forKey: .type)
-        try container.encode(id, forKey: .id)
-    }*/
 }
 
 extension Expense {

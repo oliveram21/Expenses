@@ -19,7 +19,7 @@ struct ContentView: View {
         NavigationStack(path: $path) {
                ExpensesView()
                 .navigationTitle("Expenses")
-            //search expense by id because on state restoration the list may not contain
+            //search expense by id because on state restoration the list may not contain it
             //the expense.persistentModelID fails to be initialized from a decoder
                 .navigationDestination(for: UUID.self) { id in
                     if let expense = expensesStore.searchExpenseById(id: id) {
@@ -36,8 +36,9 @@ struct ContentView: View {
                             })
                     }
                 }
-        }.tint(.expenseTint)
-            
+        }
+        .tint(.expenseTint)
+        .onError(Bindable(expensesStore).storeError)
     }
     
     @MainActor @ViewBuilder
@@ -48,11 +49,11 @@ struct ContentView: View {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Cancel") {showAddExpenceView.toggle()}
                     }
-                    
                 }
         }
     }
-    fileprivate func addExpense() {
+    
+    private func addExpense() {
         showAddExpenceView.toggle()
     }
 }

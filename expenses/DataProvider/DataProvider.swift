@@ -9,13 +9,6 @@ import Foundation
 import SwiftData
 import SwiftUI
 
-enum DataHandlerError: Error {
-    case create(_ data: SendableExpenseModel)
-    case update(_ data: SendableExpenseModel)
-    case delete(_ data: SendableExpenseModel)
-    case missing(_ data: SendableExpenseModel)
-}
-
 public protocol DataHandlerProtocol: Actor {
     @discardableResult
     func newData(_ dataModel: SendableExpenseModel) throws -> SendableExpenseModel
