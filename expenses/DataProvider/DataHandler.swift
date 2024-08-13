@@ -9,37 +9,45 @@ import Foundation
 import SwiftData
 
 @ModelActor
-public actor DataHandler {
-    public init(modelContainer: ModelContainer, customModelContext _:Bool) {
-        let modelContext = ModelContext(modelContainer)
-        modelExecutor = DefaultSerialModelExecutor(modelContext: modelContext)
-        self.modelContainer = modelContainer
-    }
-}
-
-extension DataHandler {
+public actor DataHandler: DataHandlerProtocol {
     
-    @discardableResult
-    public func newData(dataModel: SendableExpenseModel) throws -> PersistentIdentifier {
+   @discardableResult
+    public func newData(_ dataModel: SendableExpenseModel) throws -> SendableExpenseModel {
         let expense = Expense()
-        expense.updateFrom(sendableModel: dataModel)
+        expense.updateFrom(dataModel)
         modelContext.insert(expense)
-        try modelContext.save()
-        return expense.persistentModelID
-    }
-   
-    public func update(dataModel: SendableExpenseModel) throws {
-        guard let id = dataModel.persistentID, let expense = self[id, as: Expense.self] else { return }
-        expense.updateFrom(sendableModel: dataModel)
-        modelContext.insert(expense)
-        try modelContext.save()
-        
+        do {
+            //call save to synchronize with maincontext
+            try modelContext.save()
+        } catch {
+            throw DataHandlerError.create(dataModel)
+        }
+        return SendableExpenseModel(expense)
     }
     
-    public func delete(persistentID: PersistentIdentifier) throws {
-        guard let item = self[persistentID, as: Expense.self] else { return }
+     public func update(_ dataModel: SendableExpenseModel) throws  {
+         guard  let id = dataModel.persistentID, let expense = self[id, as: Expense.self] else {
+             throw DataHandlerError.missing(dataModel)
+         }
+        expense.updateFrom(dataModel)
+        modelContext.insert(expense)
+         do {
+             try modelContext.save()
+         } catch {
+             throw DataHandlerError.update(dataModel)
+         }
+    }
+    
+    public func delete(_ dataModel: SendableExpenseModel) throws {
+        guard let id = dataModel.persistentID, let item = self[id, as: Expense.self] else {
+            throw DataHandlerError.missing(dataModel)
+        }
         modelContext.delete(item)
-        try modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            throw DataHandlerError.delete(dataModel)
+        }
     }
 }
 

@@ -20,6 +20,7 @@ public enum ExpenseType: String, CaseIterable, Codable, CustomStringConvertible,
 
 @Model
 public final class Expense {
+    public var expenseID: UUID
     var date: Date
     var total: Double
     var currency: String
@@ -32,6 +33,7 @@ public final class Expense {
         self.currency = currency
         self.photo = photoData
         self.type = type
+        self.expenseID = UUID()
     }
 }
 
@@ -42,7 +44,7 @@ extension Expense {
 }
 
 extension Expense {
-    func updateFrom(sendableModel: SendableExpenseModel) {
+    func updateFrom(_ sendableModel: SendableExpenseModel) {
         self.date = sendableModel.date
         self.total = sendableModel.total
         self.currency = sendableModel.currency
@@ -59,23 +61,26 @@ public struct SendableExpenseModel: Sendable {
     let type: String
     let photo: Data?
     let persistentID: PersistentIdentifier?
+    let id: UUID?
     
-    init(date: Date = Date(), total: Double = 0, currency: String = "RON", photoData: Data? = nil, type: ExpenseType = .invoice, persistentId: PersistentIdentifier? = nil) {
+    init(date: Date = Date(), total: Double = 0, currency: String = "RON", photoData: Data? = nil, type: ExpenseType = .invoice, persistentId: PersistentIdentifier? = nil, id: UUID? = nil) {
         self.date = date
         self.total = total
         self.currency = currency
         self.photo = photoData
         self.type = type.rawValue
-        persistentID = persistentId
+        self.persistentID = persistentId
+        self.id = id
     }
     
-    init(expense: Expense) {
-        self.init(date: expense.date,
-                  total: expense.total,
-                  currency: expense.currency,
-                  photoData: expense.photo,
-                  type: expense.type,
-                  persistentId: expense.persistentModelID)
+    public init(_ persistentModel: Expense) {
+        self.init(date: persistentModel.date,
+                  total: persistentModel.total,
+                  currency: persistentModel.currency,
+                  photoData: persistentModel.photo,
+                  type: persistentModel.type,
+                  persistentId: persistentModel.persistentModelID,
+                  id: persistentModel.expenseID)
         
     }
 }

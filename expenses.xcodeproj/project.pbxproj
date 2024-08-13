@@ -18,11 +18,16 @@
 		841C51C82C345783008C2115 /* ExpensesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C51C72C345783008C2115 /* ExpensesView.swift */; };
 		841C51CA2C345881008C2115 /* ExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C51C92C345881008C2115 /* ExpenseView.swift */; };
 		841C51D12C346CD1008C2115 /* Preview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841C51D02C346CD1008C2115 /* Preview.swift */; };
+		841F10CA2C3D2B7400892059 /* ExpensesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841F10C92C3D2B7400892059 /* ExpensesStore.swift */; };
 		84380F7B2C391A05001E37D0 /* DataHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F7A2C391A05001E37D0 /* DataHandler.swift */; };
 		84380F7E2C39464E001E37D0 /* DataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F7D2C39464E001E37D0 /* DataProvider.swift */; };
 		84380F802C3A6DCB001E37D0 /* ExpenseTypyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F7F2C3A6DCB001E37D0 /* ExpenseTypyView.swift */; };
 		84380F822C3BEC21001E37D0 /* DataHandlerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F812C3BEC21001E37D0 /* DataHandlerTests.swift */; };
 		84380F842C3BF981001E37D0 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84380F832C3BF981001E37D0 /* CameraView.swift */; };
+		845373A82C4E52F00040689C /* ErrorWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845373A72C4E52F00040689C /* ErrorWrapper.swift */; };
+		848853E72C5D54DB00774448 /* ErrorViewModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848853E62C5D54DB00774448 /* ErrorViewModifier.swift */; };
+		848853E92C5E10A800774448 /* DataHandlerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848853E82C5E10A800774448 /* DataHandlerError.swift */; };
+		84E7DEA32C480D550049C47D /* StateRestorationTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E7DEA22C480D540049C47D /* StateRestorationTypes.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,11 +62,16 @@
 		841C51C72C345783008C2115 /* ExpensesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesView.swift; sourceTree = "<group>"; };
 		841C51C92C345881008C2115 /* ExpenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseView.swift; sourceTree = "<group>"; };
 		841C51D02C346CD1008C2115 /* Preview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Preview.swift; sourceTree = "<group>"; };
+		841F10C92C3D2B7400892059 /* ExpensesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpensesStore.swift; sourceTree = "<group>"; };
 		84380F7A2C391A05001E37D0 /* DataHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataHandler.swift; sourceTree = "<group>"; };
 		84380F7D2C39464E001E37D0 /* DataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataProvider.swift; sourceTree = "<group>"; };
 		84380F7F2C3A6DCB001E37D0 /* ExpenseTypyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseTypyView.swift; sourceTree = "<group>"; };
 		84380F812C3BEC21001E37D0 /* DataHandlerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataHandlerTests.swift; sourceTree = "<group>"; };
 		84380F832C3BF981001E37D0 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
+		845373A72C4E52F00040689C /* ErrorWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorWrapper.swift; sourceTree = "<group>"; };
+		848853E62C5D54DB00774448 /* ErrorViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorViewModifier.swift; sourceTree = "<group>"; };
+		848853E82C5E10A800774448 /* DataHandlerError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataHandlerError.swift; sourceTree = "<group>"; };
+		84E7DEA22C480D540049C47D /* StateRestorationTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StateRestorationTypes.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,6 +124,7 @@
 			children = (
 				84380F7C2C391A0F001E37D0 /* DataProvider */,
 				841C51CF2C346C85008C2115 /* Helpers */,
+				845373A62C4E52D60040689C /* ErrorHandling */,
 				841C51C52C3456A9008C2115 /* Views */,
 				841C51992C3456A1008C2115 /* expensesApp.swift */,
 				841C519F2C3456A3008C2115 /* Assets.xcassets */,
@@ -164,6 +175,7 @@
 			isa = PBXGroup;
 			children = (
 				841C519D2C3456A1008C2115 /* Expense.swift */,
+				841F10C92C3D2B7400892059 /* ExpensesStore.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -172,6 +184,7 @@
 			isa = PBXGroup;
 			children = (
 				841C51D02C346CD1008C2115 /* Preview.swift */,
+				84E7DEA22C480D540049C47D /* StateRestorationTypes.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -180,10 +193,20 @@
 			isa = PBXGroup;
 			children = (
 				84380F7A2C391A05001E37D0 /* DataHandler.swift */,
-				841C51C62C3456B6008C2115 /* Model */,
 				84380F7D2C39464E001E37D0 /* DataProvider.swift */,
+				848853E82C5E10A800774448 /* DataHandlerError.swift */,
+				841C51C62C3456B6008C2115 /* Model */,
 			);
 			path = DataProvider;
+			sourceTree = "<group>";
+		};
+		845373A62C4E52D60040689C /* ErrorHandling */ = {
+			isa = PBXGroup;
+			children = (
+				845373A72C4E52F00040689C /* ErrorWrapper.swift */,
+				848853E62C5D54DB00774448 /* ErrorViewModifier.swift */,
+			);
+			path = ErrorHandling;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -316,14 +339,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				845373A82C4E52F00040689C /* ErrorWrapper.swift in Sources */,
+				841F10CA2C3D2B7400892059 /* ExpensesStore.swift in Sources */,
 				841C519C2C3456A1008C2115 /* ContentView.swift in Sources */,
+				848853E92C5E10A800774448 /* DataHandlerError.swift in Sources */,
 				84380F7B2C391A05001E37D0 /* DataHandler.swift in Sources */,
 				84380F7E2C39464E001E37D0 /* DataProvider.swift in Sources */,
 				84380F842C3BF981001E37D0 /* CameraView.swift in Sources */,
 				841C51CA2C345881008C2115 /* ExpenseView.swift in Sources */,
 				841C519E2C3456A1008C2115 /* Expense.swift in Sources */,
+				848853E72C5D54DB00774448 /* ErrorViewModifier.swift in Sources */,
 				841C51D12C346CD1008C2115 /* Preview.swift in Sources */,
 				84380F802C3A6DCB001E37D0 /* ExpenseTypyView.swift in Sources */,
+				84E7DEA32C480D550049C47D /* StateRestorationTypes.swift in Sources */,
 				841C519A2C3456A1008C2115 /* expensesApp.swift in Sources */,
 				841C51C82C345783008C2115 /* ExpensesView.swift in Sources */,
 			);
@@ -507,7 +535,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.economics.expenses;
+				PRODUCT_BUNDLE_IDENTIFIER = com.economics.expenses11;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -539,7 +567,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.economics.expenses;
+				PRODUCT_BUNDLE_IDENTIFIER = com.economics.expenses11;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;

@@ -8,50 +8,58 @@
 import SwiftUI
 import SwiftData
 
+
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @State var showAddExpenceView = false
-   
+    @Environment(ExpensesStore.self) var expensesStore
+    @SceneStorage("ContentView.showAddExpenceView") var showAddExpenceView =  false
+    //use AppStorage instead of scenestorage because it triggers multiple refreshes
+    @AppStorage("ContentView.path") var path: [UUID] = []
+    
     var body: some View {
-        NavigationStack {
-            ExpensesView()
+        NavigationStack(path: $path) {
+               ExpensesView()
                 .navigationTitle("Expenses")
-                .navigationDestination(for: Expense.self) { expense in
-                    ExpenseView(expense: expense)
-                }
+            //search expense by id because on state restoration the list may not contain it
+            //the expense.persistentModelID fails to be initialized from a decoder
+                .navigationDestination(for: UUID.self) { id in
+                    if let expense = expensesStore.searchExpenseById(id: id) {
+                        ExpenseView(expense: expense)
+                    }
+               }
                 .toolbar {
                     ToolbarItem {
                         Button("Add", action: {addExpense()})
                             .sheet(isPresented: $showAddExpenceView,
                                    content: {
                                 //embbed ExpenseView in navigation stack in order to decorate it with cancel and add button
-                                AddExpenseSheetView()
+                                addExpenseSheetView()
                             })
                     }
                 }
-        }.tint(.expenseTint)
+        }
+        .tint(.expenseTint)
+        .onError(Bindable(expensesStore).storeError)
     }
     
     @MainActor @ViewBuilder
-    func AddExpenseSheetView() -> some View {
+    func addExpenseSheetView() -> some View {
         NavigationStack {
             ExpenseView(expense: nil)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Cancel") {showAddExpenceView.toggle()}
                     }
-                    
                 }
         }
     }
-    fileprivate func addExpense() {
+    
+    private func addExpense() {
         showAddExpenceView.toggle()
     }
 }
-
+    
 #Preview {
     let previewer = Previewer()
     return ContentView()
-        .modelContainer(previewer.container)
-        .environment(\.createDataHandler, previewer.dataHandlerCreator)
+        .environment(previewer.expensesStore)
 }

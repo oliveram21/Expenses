@@ -10,23 +10,21 @@ import PhotosUI
 import SwiftData
 
 struct ExpenseView: View {
-    @Environment(\.modelContext) var modelContext
-    @Environment(\.createDataHandler) private var createDataHandler
     @Environment(\.dismiss) private var dismiss
+    @Environment(ExpensesStore.self) var expensesStore: ExpensesStore
     var expense: Expense?
-    let currencies: [String] = NSLocale.isoCurrencyCodes
-    @State var photoData: Data?
-    @State var expenceType: ExpenseType = .invoice
-    @State var date: Date = Date()
-    @State var total: Double = 0
-    @State var currency: String = "RON"
-    @State var expenseID: PersistentIdentifier?
-    @State private var showCamera = false
-   
+    @SceneStorage("ExpenseView.photoData") var photoData: Data?
+    @SceneStorage("ExpenseView.expenceType") var expenceType: ExpenseType = .invoice
+    @SceneStorage("ExpenseView.date") var date = Date()
+    @SceneStorage("ExpenseView.total") var total: Double = 0
+    @SceneStorage("ExpenseView.currency") var currency: String = "RON"
+    @SceneStorage("ExpenseView.showCamera")  var showCamera = false
+    
     var body: some View {
         Form {
             Section {
                 if let imageData = photoData, let uiImage = UIImage(data: imageData) {
+
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFit()
@@ -38,7 +36,7 @@ struct ExpenseView: View {
                         
                     }
                     .foregroundColor(.expenseLabel)
-                    .fullScreenCover(isPresented: self.$showCamera) {
+                    .fullScreenCover(isPresented: $showCamera) {
                         CameraView(selectedImage: $photoData)
                     }
               }
@@ -53,7 +51,7 @@ struct ExpenseView: View {
                 .fontWeight(.semibold)
                 .foregroundStyle(.expenseLabel)
                 Picker("Currency", selection: $currency) {
-                    ForEach(currencies, id: \.self) { currency in
+                    ForEach(expensesStore.currencies, id: \.self) { currency in
                         Text(currency).tag(currency)
                     }
                 }
@@ -73,7 +71,7 @@ struct ExpenseView: View {
                     .foregroundStyle(.secondary)
                         
                 }
-                DatePicker("Expense date",selection: $date, displayedComponents: [.date])
+                DatePicker("Expense date",selection:$date, displayedComponents: [.date])
                 .datePickerStyle(.automatic)
                 .tint(.secondary)
                 .fontWeight(.semibold)
@@ -86,50 +84,62 @@ struct ExpenseView: View {
             }
         }.onAppear() {
             if let expense = expense {
-                photoData = expense.photo
-                expenceType =  expense.type
-                total = expense.total
-                currency = expense.currency
-                date = expense.date
-                expenseID = expense.persistentModelID
+                updateFromExpense(expense: expense)
             }
         }
     }
-    @ViewBuilder
+    @ViewBuilder @MainActor
     func ToolBarContent() -> some View {
         Button("Save") {
-            saveExpense()
             dismiss()
+            saveExpense()
         }
     }
-    
+    @MainActor
     fileprivate func saveExpense() {
-        let sendableExpense = SendableExpenseModel(date:date,
+        let isNewExpense = (expense == nil)
+        let sendableExpense = SendableExpenseModel(date: date,
                                                    total: total,
                                                    currency: currency,
                                                    photoData: photoData,
                                                    type: expenceType,
-                                                   persistentId: expenseID)
-        let createDataHandler = createDataHandler
-        let isNewExpense = (expense == nil)
-        Task.detached {
-            let dataHandler = await createDataHandler()
-            do {
-                if isNewExpense {
-                    try await dataHandler.newData(dataModel: sendableExpense)
-                } else {
-                    try await dataHandler.update(dataModel: sendableExpense)
-                }
-            } catch {
-                print(error)
-            }
-        }
+                                                   persistentId: expense?.persistentModelID,
+                                                   id: isNewExpense ? nil: expense!.expenseID
+                                                   )
+       
+        
+        expensesStore.saveExpense(sendableExpense, isNew: isNewExpense)
+        //reset state to initial state in order to cleanup scenestorage.
+        resetStateToDefaultValues()
+    }
+    
+    func resetStateToDefaultValues() {
+        photoData = nil
+        expenceType = .invoice
+        date = Date()
+        total = 0
+        currency = "RON"
+        showCamera = false
+    }
+    
+    func updateFromExpense(expense: Expense) {
+        photoData = expense.photo
+        expenceType =  expense.type
+        total = expense.total
+        currency = expense.currency
+        date = expense.date
     }
 }
 
 #Preview {
+    struct ExpensePreviewContainer : View {
+       var body: some View {
+           NavigationStack {
+               ExpenseView()
+           }
+       }
+    }
     let previewer = Previewer()
-    return ExpenseView(expense: previewer.expense)
-        .modelContainer(previewer.container)
+    return ExpensePreviewContainer()
+        .environment(previewer.expensesStore)
 }
-

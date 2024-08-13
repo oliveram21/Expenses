@@ -9,14 +9,21 @@ import Foundation
 import SwiftData
 import SwiftUI
 
+public protocol DataHandlerProtocol: Actor {
+    @discardableResult
+    func newData(_ dataModel: SendableExpenseModel) throws -> SendableExpenseModel
+    func update(_ dataModel: SendableExpenseModel) throws
+    func delete(_ dataModel: SendableExpenseModel) throws
+}
+
+//Helper class for creating model container for different enviroments and support for DataHandler
+//creation injection
 public final class DataProvider: Sendable {
-    public typealias DataHandlerCreator =  @Sendable () async -> DataHandler
+    public typealias DataHandlerCreator =  @Sendable () async -> any DataHandlerProtocol
     public static let shared = DataProvider()
     
     public let sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Expense.self,
-        ])
+        let schema = Schema([Expense.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         
         do {
@@ -27,9 +34,7 @@ public final class DataProvider: Sendable {
     }()
     
     public let previewContainer: ModelContainer = {
-        let schema = Schema([
-            Expense.self,
-        ])
+        let schema = Schema([Expense.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
@@ -40,33 +45,22 @@ public final class DataProvider: Sendable {
     
     private init() {}
     
-    public func dataHandlerCreator(preview: Bool = false) -> DataHandlerCreator  {
+    //use different instance for each data operation logic instead of one instance
+    //is prefarable for a cleaner and simpler code: errors of one operation doesn't interfere
+    //with other operations
+    public func dataHandlerCreator(preview: Bool = false) -> DataHandlerCreator {
         let container = preview ? previewContainer : sharedModelContainer
         return { DataHandler(modelContainer: container) }
     }
     
     public func testContainer() -> ModelContainer {
-        let schema = Schema([
-            Expense.self,
-        ])
+        let schema = Schema([Expense.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
-    }
-    
-}
-
-public struct DataHandlerKey: EnvironmentKey {
-    public static let defaultValue: DataProvider.DataHandlerCreator = DataProvider.shared.dataHandlerCreator()
-}
-
-extension EnvironmentValues {
-    public var createDataHandler: DataProvider.DataHandlerCreator {
-        get { self[DataHandlerKey.self] }
-        set { self[DataHandlerKey.self] = newValue }
     }
 }
 

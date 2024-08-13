@@ -24,7 +24,5 @@ struct ExpenseTypeView: View {
 }
 
 #Preview {
-    let previewer = Previewer()
-    return ExpenseTypeView(text: previewer.expense.type.rawValue.first!.uppercased())
-        .modelContainer(previewer.container)
+    return ExpenseTypeView(text: "Receipt")
 }

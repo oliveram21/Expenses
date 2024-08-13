@@ -10,12 +10,15 @@ import SwiftData
 
 @main
 struct expensesApp: App {
-   
     let dataProvider = DataProvider.shared
+   
     var body: some Scene {
         WindowGroup {
             ContentView()
-            .environment(\.createDataHandler, dataProvider.dataHandlerCreator())
+                .environment(ExpensesStore(createHandler: dataProvider.dataHandlerCreator(),
+                                           mainContext: dataProvider.sharedModelContainer.mainContext))
+
         }
-        .modelContainer(dataProvider.sharedModelContainer)    }
+        .modelContainer(dataProvider.sharedModelContainer)
+    }
 }
