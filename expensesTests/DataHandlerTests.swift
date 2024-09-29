@@ -108,7 +108,7 @@ final class DataHandlerTests: XCTestCase {
                                                  currency: firstExpense.currency,
                                                  photoData: firstExpense.photo,
                                                  type: firstExpense.type,
-                                                 persistentId: firstExpense.persistentModelID)
+                                                 id: firstExpense.expenseID)
           try await hander.update(expenseSend)
           let updatedExpenses = try container.mainContext.fetch(fetchDescriptor)
           if let firstExpense = updatedExpenses.first {

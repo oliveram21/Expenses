@@ -12,28 +12,42 @@ struct ExpensesView: View {
     @Environment(ExpensesStore.self) var expensesStore
     var body: some View {
         List {
-            ForEach(expensesStore.expenses, id: \.persistentModelID) { expense in
-                NavigationLink(value: expense.expenseID) {
+            ForEach(expensesStore.expenses, id: \.id) { expense in
+                NavigationLink(value: expense.id) {
                     ExpenseRow(expense: expense)
                 }.onAppear(perform: {
-                    expensesStore.loadMoreExpenses(expense: expense)
+                    Task{
+                        await expensesStore.loadMoreExpenses(expense: expense)
+                    }
                 })
             }.onDelete(perform: deleteExpense)
-        }.onAppear(perform: {
-            expensesStore.loadMoreExpenses()
+        }//search expense by id because on state restoration the list may not contain it
+        //the expense.persistentModelID fails to be initialized from a decoder
+        .navigationDestination(for: UUID.self) { ExpenseView(expenseId: $0) }
+        .onAppear(perform: {
+                Task { await expensesStore.loadMoreExpenses() }
         })
     }
-    
+  /*  @MainActor @ViewBuilder
+    func navigateToExpenseView(id: UUID) -> some View {
+        Task {
+            if let expense = await expensesStore.searchExpenseById(id: id) {
+               return ExpenseView(expense: expense)
+            }
+        }
+         ExpenseView()
+       
+    }*/
     @MainActor private func deleteExpense(offsets: IndexSet) {
         for offset in offsets {
-            let sendableExpense = SendableExpenseModel(expensesStore.expenses[offset])
+            let sendableExpense = expensesStore.expenses[offset]
             expensesStore.deleteExpense(sendableExpense)
         }
     }
 }
 
 struct ExpenseRow: View{
-    let expense: Expense
+    let expense: SendableExpenseModel
     var body: some View {
         VStack(alignment: .leading) {
             HStack {

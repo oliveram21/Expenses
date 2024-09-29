@@ -24,5 +24,5 @@ struct ExpenseTypeView: View {
 }
 
 #Preview {
-    return ExpenseTypeView(text: "Receipt")
+    return ExpenseTypeView(text: "R")
 }

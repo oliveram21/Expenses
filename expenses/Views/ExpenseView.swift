@@ -12,7 +12,7 @@ import SwiftData
 struct ExpenseView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(ExpensesStore.self) var expensesStore: ExpensesStore
-    var expense: Expense?
+    var expenseId: UUID?
     @SceneStorage("ExpenseView.photoData") var photoData: Data?
     @SceneStorage("ExpenseView.expenceType") var expenceType: ExpenseType = .invoice
     @SceneStorage("ExpenseView.date") var date = Date()
@@ -38,6 +38,7 @@ struct ExpenseView: View {
                     .foregroundColor(.expenseLabel)
                     .fullScreenCover(isPresented: $showCamera) {
                         CameraView(selectedImage: $photoData)
+                            .ignoresSafeArea()
                     }
               }
             }
@@ -83,8 +84,13 @@ struct ExpenseView: View {
                 ToolBarContent()
             }
         }.onAppear() {
-            if let expense = expense {
-                updateFromExpense(expense: expense)
+            if let expenseId = expenseId {
+                Task {
+                    if let expense = await expensesStore.searchExpenseById(id: expenseId) {
+                        updateFromExpense(expense: expense)
+                    }
+                }
+                
             }
         }
     }
@@ -97,18 +103,18 @@ struct ExpenseView: View {
     }
     @MainActor
     fileprivate func saveExpense() {
-        let isNewExpense = (expense == nil)
+        let isNewExpense = (expenseId == nil)
         let sendableExpense = SendableExpenseModel(date: date,
                                                    total: total,
                                                    currency: currency,
                                                    photoData: photoData,
                                                    type: expenceType,
-                                                   persistentId: expense?.persistentModelID,
-                                                   id: isNewExpense ? nil: expense!.expenseID
+                                                   id: expenseId
                                                    )
        
-        
-        expensesStore.saveExpense(sendableExpense, isNew: isNewExpense)
+        Task{
+            await expensesStore.saveExpense(sendableExpense, isNew: isNewExpense)
+        }
         //reset state to initial state in order to cleanup scenestorage.
         resetStateToDefaultValues()
     }
@@ -122,9 +128,9 @@ struct ExpenseView: View {
         showCamera = false
     }
     
-    func updateFromExpense(expense: Expense) {
+    func updateFromExpense(expense: SendableExpenseModel) {
         photoData = expense.photo
-        expenceType =  expense.type
+        expenceType =  ExpenseType.init(rawValue: expense.type) ?? .invoice
         total = expense.total
         currency = expense.currency
         date = expense.date

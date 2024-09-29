@@ -8,7 +8,7 @@ import SwiftUI
 struct CameraView: UIViewControllerRepresentable {
     
     @Binding var selectedImage: Data?
-    @Environment(\.presentationMode) var isPresented
+    @Environment(\.dismiss) var dismiss
     
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let imagePicker = UIImagePickerController()
@@ -38,7 +38,7 @@ class Coordinator: NSObject, UINavigationControllerDelegate, UIImagePickerContro
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         guard let selectedImage = info[.originalImage] as? UIImage else { return }
         self.picker.selectedImage = selectedImage.convertToPNG()
-        self.picker.isPresented.wrappedValue.dismiss()
+        self.picker.dismiss()
     }
 }
 

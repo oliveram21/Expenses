@@ -19,13 +19,7 @@ struct ContentView: View {
         NavigationStack(path: $path) {
                ExpensesView()
                 .navigationTitle("Expenses")
-            //search expense by id because on state restoration the list may not contain it
-            //the expense.persistentModelID fails to be initialized from a decoder
-                .navigationDestination(for: UUID.self) { id in
-                    if let expense = expensesStore.searchExpenseById(id: id) {
-                        ExpenseView(expense: expense)
-                    }
-               }
+            
                 .toolbar {
                     ToolbarItem {
                         Button("Add", action: {addExpense()})
@@ -44,7 +38,7 @@ struct ContentView: View {
     @MainActor @ViewBuilder
     func addExpenseSheetView() -> some View {
         NavigationStack {
-            ExpenseView(expense: nil)
+            ExpenseView(expenseId: nil)
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button("Cancel") {showAddExpenceView.toggle()}

@@ -22,6 +22,6 @@ struct Previewer {
             let exp =  Expense(date: Date(), total: Double(amount), currency: "RON", photoData: nil, type: .receipt)
             container.mainContext.insert(exp)
         }
-        expensesStore = ExpensesStore(createHandler: dataHandlerCreator, mainContext: container.mainContext)
+        expensesStore = ExpensesStore(createHandler: dataHandlerCreator)
     }
 }

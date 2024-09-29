@@ -7,13 +7,14 @@
 
 import Foundation
 import SwiftData
-import SwiftUI
 
 public protocol DataHandlerProtocol: Actor {
     @discardableResult
     func newData(_ dataModel: SendableExpenseModel) throws -> SendableExpenseModel
     func update(_ dataModel: SendableExpenseModel) throws
     func delete(_ dataModel: SendableExpenseModel) throws
+    func loadMore(shoudLoadMore: Bool, loadOffset: Int, fetchLimit: Int)  -> [SendableExpenseModel]
+    func searchById(id: UUID) -> SendableExpenseModel? 
 }
 
 //Helper class for creating model container for different enviroments and support for DataHandler

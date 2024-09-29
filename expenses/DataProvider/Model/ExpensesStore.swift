@@ -13,19 +13,17 @@ import SwiftUI
 @Observable class ExpensesStore {
     static let fetchPageSize = 20
     private var createHandler: DataProvider.DataHandlerCreator
-    private var modelContext: ModelContext
-    var expenses: [Expense] = []
+    var expenses: [SendableExpenseModel] = []
     let currencies: [String] = NSLocale.isoCurrencyCodes
     var storeError: ErrorWrapper?
     
-    init(createHandler: @escaping DataProvider.DataHandlerCreator, mainContext: ModelContext) {
+    init(createHandler: @escaping DataProvider.DataHandlerCreator) {
         self.createHandler = createHandler
-        self.modelContext = mainContext
     }
 }
 
 extension ExpensesStore {
-    func loadMoreExpenses(expense: Expense? = nil) {
+    func loadMoreExpenses(expense: SendableExpenseModel? = nil) async {
         var isLastExpense = (expense == nil && expenses.isEmpty) ? true : false
         if let lastItem = expenses.last, let expense, lastItem == expense {
             isLastExpense = true
@@ -34,7 +32,7 @@ extension ExpensesStore {
         guard isLastExpense == true else {
             return
         }
-        let moreExpenses = loadMoreRecords(shoudLoadMore: isLastExpense, loadOffset: expenses.count)
+        let moreExpenses = await loadMoreRecords(shoudLoadMore: isLastExpense, loadOffset: expenses.count)
         
         //don't trigger ui refresh if there is nothing to load
         guard !moreExpenses.isEmpty else { return }
@@ -45,51 +43,40 @@ extension ExpensesStore {
     //fetch a limited number of expenses from a given offset
     //Using custom descriptor instead of @Query has some disavantages: model changes arent' tracked by default,
     //iCloud sync is not automatically done
-    public func loadMoreRecords(shoudLoadMore: Bool, loadOffset: Int, fetchLimit: Int = ExpensesStore.fetchPageSize)  -> [Expense] {
-       
-        if shoudLoadMore {
-            var fetchDescriptor = FetchDescriptor<Expense>()
-            guard let totalRecords = try? modelContext.fetchCount(fetchDescriptor) else { return [] }
-            guard totalRecords > loadOffset else { return [] }
-            
-            fetchDescriptor.fetchLimit = fetchLimit
-            fetchDescriptor.fetchOffset = loadOffset
-            fetchDescriptor.sortBy = [.init(\Expense.date, order: .reverse)]
-            print("fetch offset:\(loadOffset) currentIndex:\(shoudLoadMore) total:\(totalRecords) limit:\(fetchLimit)")
-            let expenses = try? modelContext.fetch(fetchDescriptor)
-            return expenses == nil ? [] : expenses!
-        }
-        return []
+    public func loadMoreRecords(shoudLoadMore: Bool, loadOffset: Int, fetchLimit: Int = ExpensesStore.fetchPageSize)  async -> [SendableExpenseModel] {
+        let dataHandler = await createHandler()
+
+        let expenses = await dataHandler.loadMore(shoudLoadMore: shoudLoadMore, loadOffset: loadOffset, fetchLimit: fetchLimit)
+        return expenses
     }
     
-    func reloadExpenses() {
+    func reloadExpenses() async {
         let loadedExpensesCount = max(expenses.count,ExpensesStore.fetchPageSize)
         self.expenses.removeAll()
-        self.expenses = loadMoreRecords(shoudLoadMore: true, loadOffset: 0, fetchLimit: loadedExpensesCount)
+        self.expenses = await loadMoreRecords(shoudLoadMore: true, loadOffset: 0, fetchLimit: loadedExpensesCount)
         print("total reloaded:\(self.expenses.count)")
     }
     
-    func searchExpenseById(id: UUID) -> Expense? {
-       
-        let predicate =  #Predicate<Expense>{ expense in
-            expense.expenseID == id
+    func searchExpenseById(id: UUID) async -> SendableExpenseModel? {
+        let predicate =  #Predicate<SendableExpenseModel>{ expense in
+            expense.id == id
         }
         //search in local list
         if let expense = try? expenses.filter(predicate).first {
             return expense
         }
         
-        var fetcDescriptor = FetchDescriptor<Expense>()
-        fetcDescriptor.predicate = predicate
         //search in DB
-        return try? modelContext.fetch(fetcDescriptor).first
+        let dataHandler = await createHandler()
+        return await dataHandler.searchById(id: id)
     }
+        
 }
 
 extension ExpensesStore {
-    func saveExpense(_ expense: SendableExpenseModel, isNew: Bool = false) {
+    func saveExpense(_ expense: SendableExpenseModel, isNew: Bool = false) async {
         let createDataHandler = createHandler
-        Task.detached {
+       // Task.detached {
             let dataHandler = await createDataHandler()
             do {
                 if isNew {
@@ -100,9 +87,12 @@ extension ExpensesStore {
                 //fetch again the same number of expenses in order to preserv scroll position
                 await self.reloadExpenses()
             } catch let error as DataHandlerError {
-                await self.setError(error: error)
+                 self.setError(error: error)
             }
+        catch {
+            
         }
+        //}
     }
     
    func deleteExpense(_ expense: SendableExpenseModel) {

@@ -15,10 +15,8 @@ struct expensesApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(ExpensesStore(createHandler: dataProvider.dataHandlerCreator(),
-                                           mainContext: dataProvider.sharedModelContainer.mainContext))
+                .environment(ExpensesStore(createHandler: dataProvider.dataHandlerCreator()))
 
         }
-        .modelContainer(dataProvider.sharedModelContainer)
     }
 }

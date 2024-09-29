@@ -53,34 +53,3 @@ extension Expense {
     }
 }
 
-//convience struct to send model data between actors
-public struct SendableExpenseModel: Sendable {
-    let date: Date
-    let total: Double
-    let currency: String
-    let type: String
-    let photo: Data?
-    let persistentID: PersistentIdentifier?
-    let id: UUID?
-    
-    init(date: Date = Date(), total: Double = 0, currency: String = "RON", photoData: Data? = nil, type: ExpenseType = .invoice, persistentId: PersistentIdentifier? = nil, id: UUID? = nil) {
-        self.date = date
-        self.total = total
-        self.currency = currency
-        self.photo = photoData
-        self.type = type.rawValue
-        self.persistentID = persistentId
-        self.id = id
-    }
-    
-    public init(_ persistentModel: Expense) {
-        self.init(date: persistentModel.date,
-                  total: persistentModel.total,
-                  currency: persistentModel.currency,
-                  photoData: persistentModel.photo,
-                  type: persistentModel.type,
-                  persistentId: persistentModel.persistentModelID,
-                  id: persistentModel.expenseID)
-        
-    }
-}
